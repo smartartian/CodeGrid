@@ -1,9 +1,11 @@
-// 从 data.js 生成 RSS 2.0 feed（public/feed.xml）
+// 从 content/posts/ 的 .md 文章生成 RSS 2.0 feed（public/feed.xml）
 // 用法：node scripts/gen-rss.mjs
-import { writeFile } from "node:fs/promises";
-import { articles, site } from "../src/data.js";
+import { readdir, readFile, writeFile } from "node:fs/promises";
+import { parsePost } from "../src/lib/parse-post.js";
+import { site } from "../src/site.js";
 
 const baseUrl = site.baseUrl.replace(/\/+$/, "");
+const postsDir = "content/posts";
 
 function esc(s) {
   return String(s)
@@ -22,6 +24,13 @@ function excerpt(md) {
     .replace(/\s+/g, " ")
     .trim();
   return text.length > 150 ? text.slice(0, 150) + "…" : text;
+}
+
+const files = (await readdir(postsDir)).filter((f) => f.endsWith(".md"));
+const articles = [];
+for (const f of files) {
+  const raw = await readFile(`${postsDir}/${f}`, "utf8");
+  articles.push(parsePost(raw, f.replace(/\.md$/, "")));
 }
 
 const items = [...articles]

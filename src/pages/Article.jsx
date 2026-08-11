@@ -82,26 +82,58 @@ function renderMarkdown(md) {
   const lines = md.split("\n");
   const out = [];
   let i = 0;
-  let list = null;
-  let table = null;
-  let code = null;
-  let quote = null;
+  let list = null; // { type: "ul" | "ol", items: string[] }
+  let table = null; // { head: string[], rows: string[][] }
+  let code = null; // string[] | null
+  let quote = null; // string[] | null
 
-  function closeList() {
+  function flushList() {
     if (list) {
-      out.push(list);
+      const Tag = list.type;
+      out.push(
+        <Tag key={out.length}>
+          {list.items.map((item, i) => (
+            <li key={i} dangerouslySetInnerHTML={{ __html: inline(item) }} />
+          ))}
+        </Tag>,
+      );
       list = null;
     }
   }
-  function closeTable() {
+  function flushTable() {
     if (table) {
-      out.push(table);
+      out.push(
+        <table key={out.length}>
+          <thead>
+            <tr>
+              {table.head.map((c, i) => (
+                <th key={i} dangerouslySetInnerHTML={{ __html: inline(c) }} />
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {table.rows.map((row, ri) => (
+              <tr key={ri}>
+                {row.map((c, ci) => (
+                  <td key={ci} dangerouslySetInnerHTML={{ __html: inline(c) }} />
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>,
+      );
       table = null;
     }
   }
-  function closeQuote() {
+  function flushQuote() {
     if (quote) {
-      out.push(quote);
+      out.push(
+        <blockquote key={out.length}>
+          {quote.map((t, i) => (
+            <p key={i}>{inline(t)}</p>
+          ))}
+        </blockquote>,
+      );
       quote = null;
     }
   }
@@ -116,9 +148,9 @@ function renderMarkdown(md) {
 
     // 代码块
     if (line.startsWith("```")) {
-      closeList();
-      closeTable();
-      closeQuote();
+      flushList();
+      flushTable();
+      flushQuote();
       if (code) {
         out.push(<pre key={out.length}><code>{code.join("\n")}</code></pre>);
         code = null;
@@ -134,46 +166,24 @@ function renderMarkdown(md) {
 
     // 空行
     if (line.trim() === "") {
-      closeList();
-      closeTable();
-      closeQuote();
+      flushList();
+      flushTable();
+      flushQuote();
       continue;
     }
 
     // 表格
     if (line.trim().startsWith("|")) {
-      closeList();
-      closeQuote();
+      flushList();
+      flushQuote();
+      const cells = line.split("|").slice(1, -1).map((c) => c.trim());
       if (table) {
-        const cells = line.split("|").slice(1, -1).map((c) => c.trim());
         if (cells.every((c) => /^:?-{2,}:?$/.test(c))) {
           continue; // 分隔行
         }
-        const tr = (
-          <tr key={out.length}>
-            {cells.map((c, idx) => (
-              <td key={idx} dangerouslySetInnerHTML={{ __html: inline(c) }} />
-            ))}
-          </tr>
-        );
-        table.props.children.push(tr);
+        table.rows.push(cells);
       } else {
-        const cells = line.split("|").slice(1, -1).map((c) => c.trim());
-        const head = (
-          <thead key="head">
-            <tr>
-              {cells.map((c, idx) => (
-                <th key={idx} dangerouslySetInnerHTML={{ __html: inline(c) }} />
-              ))}
-            </tr>
-          </thead>
-        );
-        table = (
-          <table key={out.length}>
-            {head}
-            <tbody>{[]}</tbody>
-          </table>
-        );
+        table = { head: cells, rows: [] };
       }
       continue;
     }
@@ -181,9 +191,9 @@ function renderMarkdown(md) {
     // 块级图片
     const img = line.match(/^!\[([^\]]*)\]\(([^)\s]+)\)$/);
     if (img) {
-      closeList();
-      closeTable();
-      closeQuote();
+      flushList();
+      flushTable();
+      flushQuote();
       out.push(
         <figure key={out.length} className="prose-figure">
           <img src={img[2]} alt={img[1]} loading="lazy" />
@@ -195,41 +205,40 @@ function renderMarkdown(md) {
 
     // 引用
     if (line.startsWith("> ")) {
-      closeList();
-      closeTable();
-      const text = line.slice(2);
-      if (!quote) quote = <blockquote key={out.length} />;
-      quote.props.children = [...(quote.props.children || []), <p key={quote.props.children?.length ?? 0}>{inline(text)}</p>];
+      flushList();
+      flushTable();
+      if (!quote) quote = [];
+      quote.push(line.slice(2));
       continue;
     }
 
     // 无序列表
     if (/^\s*[-*] /.test(line)) {
-      closeTable();
-      closeQuote();
-      if (!list) list = <ul key={out.length} />;
-      list.props.children = [
-        ...(list.props.children || []),
-        <li key={list.props.children?.length ?? 0} dangerouslySetInnerHTML={{ __html: inline(line.replace(/^\s*[-*] /, "")) }} />,
-      ];
+      flushTable();
+      flushQuote();
+      if (!list || list.type !== "ul") {
+        if (list) flushList();
+        list = { type: "ul", items: [] };
+      }
+      list.items.push(line.replace(/^\s*[-*] /, ""));
       continue;
     }
 
     // 有序列表
     if (/^\s*\d+\. /.test(line)) {
-      closeTable();
-      closeQuote();
-      if (!list) list = <ol key={out.length} />;
-      list.props.children = [
-        ...(list.props.children || []),
-        <li key={list.props.children?.length ?? 0} dangerouslySetInnerHTML={{ __html: inline(line.replace(/^\s*\d+\. /, "")) }} />,
-      ];
+      flushTable();
+      flushQuote();
+      if (!list || list.type !== "ol") {
+        if (list) flushList();
+        list = { type: "ol", items: [] };
+      }
+      list.items.push(line.replace(/^\s*\d+\. /, ""));
       continue;
     }
 
-    closeList();
-    closeTable();
-    closeQuote();
+    flushList();
+    flushTable();
+    flushQuote();
 
     // 标题
     const h = line.match(/^(#{1,3})\s+(.*)$/);
@@ -246,9 +255,9 @@ function renderMarkdown(md) {
     out.push(<p key={out.length} dangerouslySetInnerHTML={{ __html: inline(line) }} />);
   }
 
-  closeList();
-  closeTable();
-  closeQuote();
+  flushList();
+  flushTable();
+  flushQuote();
   if (code) out.push(<pre key={out.length}><code>{code.join("\n")}</code></pre>);
 
   return out;

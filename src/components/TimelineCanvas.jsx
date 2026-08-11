@@ -1,12 +1,15 @@
 import { useEffect, useRef } from "react";
 
 // Canvas 实现的时间线：绘制主线/节点/卡片，支持拖拽滚动、hover 高亮、入场动效
+// 卡片在主线上下交替排列（zigzag）
 const CARD_W = 176;
 const CARD_H = 150;
 const GAP = 28;
-const LINE_Y = 34; // 主线 y（圆点中心）
-const CARD_TOP = 48;
-const DATE_Y = 18;
+const CANVAS_H = 380;
+const LINE_Y = CANVAS_H / 2; // 主线 y（圆点中心）
+const CONN_TOP = 34; // 上方卡片底边到主线的距离（容纳日期）
+const CONN_BOTTOM = 14; // 下方卡片顶边到主线的距离
+const DATE_OFF = 24; // 日期绘制在主线上方的高度
 
 const COLORS = {
   navy: "#0d4a8a",
@@ -63,9 +66,9 @@ export default function TimelineCanvas({ articles }) {
       st.width = w;
       st.dpr = dpr;
       canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(450 * dpr);
+      canvas.height = Math.round(CANVAS_H * dpr);
       canvas.style.width = `${w}px`;
-      canvas.style.height = "450px";
+      canvas.style.height = `${CANVAS_H}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const maxOffset = Math.max(0, contentW + 16 - w);
       st.offset = Math.min(st.offset, maxOffset);
@@ -99,7 +102,7 @@ export default function TimelineCanvas({ articles }) {
     }
 
     function draw() {
-      ctx.clearRect(0, 0, st.width, 450);
+      ctx.clearRect(0, 0, st.width, CANVAS_H);
       const x0 = Math.max(8, (st.width - contentW) / 2);
       const left = x0 - st.offset;
 
@@ -133,12 +136,12 @@ export default function TimelineCanvas({ articles }) {
         ctx.globalAlpha = ease;
         const lift = (1 - ease) * 14;
 
-        // 日期
+        // 日期（统一绘制在主线上方）
         ctx.fillStyle = COLORS.textMuted;
         ctx.font = `12px ${FONT}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(a.date, cx, DATE_Y - lift * 0.4);
+        ctx.fillText(a.date, cx, LINE_Y - DATE_OFF - lift * 0.4);
 
         // 圆点
         const isHover = st.hover === i;
@@ -154,8 +157,20 @@ export default function TimelineCanvas({ articles }) {
         ctx.strokeStyle = COLORS.red;
         ctx.stroke();
 
-        // 卡片
-        const cardY = CARD_TOP - lift * 4;
+        // 连接线：圆点垂直通向卡片
+        const above = i % 2 === 0;
+        const connLen = above ? CONN_TOP : CONN_BOTTOM;
+        ctx.strokeStyle = COLORS.washBorder;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx, LINE_Y + (above ? -7 : 7));
+        ctx.lineTo(cx, LINE_Y + (above ? -connLen : connLen));
+        ctx.stroke();
+
+        // 卡片（上下交替，入场时从主线方向滑入）
+        const cardY = above
+          ? LINE_Y - connLen - CARD_H - lift * 6
+          : LINE_Y + connLen + lift * 6;
         const cardX = left + i * (CARD_W + GAP);
         // 顶部深蓝条
         ctx.fillStyle = COLORS.navy;
