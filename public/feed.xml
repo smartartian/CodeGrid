@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>CodeGrid</title>
+    <link>https://codegrid.cn</link>
+    <description>记录技术思考与工程实践</description>
+    <language>zh-cn</language>
+    <generator>mimocode-blog</generator>
+    <atom:link href="https://codegrid.cn/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>React 状态管理方案演进：从 Redux 到原子化</title>
+      <link>https://codegrid.cn/article/react-state-management</link>
+      <guid isPermaLink="false">https://codegrid.cn/article/react-state-management</guid>
+      <pubDate>Sun, 09 Aug 2026 16:00:00 GMT</pubDate>
+      <category>前端</category>
+      <description>React 状态管理方案演进：从 Redux 到原子化 状态管理是 React 生态中争论最久的话题之一。本文从个人实践出发，梳理各类方案的定位与取舍。 一、Redux 时代：约定大于自由 2015 年 Redux 出现时，解决了&quot;组件树数据流不可预测&quot;的痛点。单一 store、纯函数 reduce…</description>
+      <category>React</category>
+      <category>状态管理</category>
+    </item>
+    <item>
+      <title>Vite 构建优化实践：从 3 分钟到 30 秒</title>
+      <link>https://codegrid.cn/article/vite-build-optimization</link>
+      <guid isPermaLink="false">https://codegrid.cn/article/vite-build-optimization</guid>
+      <pubDate>Wed, 05 Aug 2026 16:00:00 GMT</pubDate>
+      <category>工程化</category>
+      <description>Vite 构建优化实践：从 3 分钟到 30 秒 构建速度直接影响开发体验与 CI 效率。本文记录一次生产构建从 3 分钟优化到 30 秒的过程。 一、先定位瓶颈 使用 vite build --debug 查看各阶段耗时，发现依赖预构建（Optimize Dependencies）与压缩（Ters…</description>
+      <category>Vite</category>
+      <category>性能优化</category>
+    </item>
+    <item>
+      <title>TypeScript 泛型实战：写出可复用的类型工具</title>
+      <link>https://codegrid.cn/article/typescript-generics-practical</link>
+      <guid isPermaLink="false">https://codegrid.cn/article/typescript-generics-practical</guid>
+      <pubDate>Mon, 27 Jul 2026 16:00:00 GMT</pubDate>
+      <category>后端</category>
+      <description>TypeScript 泛型实战：写出可复用的类型工具 泛型是 TypeScript 类型系统最强大的部分。本文用 5 个实战场景讲解进阶用法。 一、从对象中提取键的联合类型 二、条件类型与 infer 从函数签名中提取返回值类型： 三、映射类型改造对象 将对象的所有属性变为可选且保留元数据： 四、递…</description>
+      <category>TypeScript</category>
+      <category>类型系统</category>
+    </item>
+    <item>
+      <title>Nginx 网关配置踩坑记：转发、缓存与安全头</title>
+      <link>https://codegrid.cn/article/nginx-gateway-config</link>
+      <guid isPermaLink="false">https://codegrid.cn/article/nginx-gateway-config</guid>
+      <pubDate>Sun, 19 Jul 2026 16:00:00 GMT</pubDate>
+      <category>运维</category>
+      <description>Nginx 网关配置踩坑记：转发、缓存与安全头 一次线上 502 事故，让我重新审视 Nginx 网关配置的每个细节。 一、路径转发的经典陷阱 location 匹配优先级、proxy_pass 带不带斜杠，差一个字符行为完全不同。 二、缓存控制策略 静态资源长缓存、API 不缓存，通过 heade…</description>
+      <category>Nginx</category>
+      <category>DevOps</category>
+    </item>
+    <item>
+      <title>PostgreSQL 索引设计：从执行计划说起</title>
+      <link>https://codegrid.cn/article/postgresql-index-design</link>
+      <guid isPermaLink="false">https://codegrid.cn/article/postgresql-index-design</guid>
+      <pubDate>Sat, 11 Jul 2026 16:00:00 GMT</pubDate>
+      <category>后端</category>
+      <description>PostgreSQL 索引设计：从执行计划说起 索引优化的正确姿势是先看执行计划，而不是凭感觉建索引。 一、读懂 EXPLAIN ANALYZE 关注 Seq Scan 与 Index Scan 的代价估算与实际耗时，理解 rows 估算偏差的危害。 二、联合索引的列序 等值条件优先、范围条件靠后，…</description>
+      <category>PostgreSQL</category>
+      <category>数据库</category>
+    </item>
+    <item>
+      <title>Git Worktree 工作流：并行分支开发体验</title>
+      <link>https://codegrid.cn/article/git-worktree-workflow</link>
+      <guid isPermaLink="false">https://codegrid.cn/article/git-worktree-workflow</guid>
+      <pubDate>Thu, 02 Jul 2026 16:00:00 GMT</pubDate>
+      <category>工程化</category>
+      <description>Git Worktree 工作流：并行分支开发体验 同时开发多个特性分支时，频繁 stash 和切换让人抓狂。git worktree 提供了优雅的解法。 一、基本用法 二、多目录并行开发 每个分支独立工作目录，互不干扰，构建缓存互不污染。 三、清理与规范 开发完成后及时移除 worktree，避免…</description>
+      <category>Git</category>
+      <category>工作流</category>
+    </item>
+    <item>
+      <title>系统设计面试：从 URL 输入到页面渲染</title>
+      <link>https://codegrid.cn/article/system-design-interview</link>
+      <guid isPermaLink="false">https://codegrid.cn/article/system-design-interview</guid>
+      <pubDate>Wed, 24 Jun 2026 16:00:00 GMT</pubDate>
+      <category>架构</category>
+      <description>系统设计面试：从 URL 输入到页面渲染 &quot;输入 URL 后发生了什么&quot;是面试高频题，也是理解分层架构的最佳入口。 一、DNS 解析与 CDN 二、负载均衡层 L4 与 L7 负载均衡的区别与选择。 三、网关与安全 四、缓存分层 浏览器缓存、CDN 缓存、应用缓存、数据库缓存，各层失效策略。 五、数…</description>
+      <category>系统设计</category>
+      <category>网络</category>
+    </item>
+    <item>
+      <title>Rust 学习笔记：所有权与生命周期的直觉理解</title>
+      <link>https://codegrid.cn/article/rust-learning-notes</link>
+      <guid isPermaLink="false">https://codegrid.cn/article/rust-learning-notes</guid>
+      <pubDate>Wed, 17 Jun 2026 16:00:00 GMT</pubDate>
+      <category>后端</category>
+      <description>Rust 学习笔记：所有权与生命周期的直觉理解 Rust 的所有权系统劝退了很多人。本文尝试用比喻建立直觉。 一、所有权：资源只有一个主人 二、借用：临时使用不转移 三、生命周期：借用不能超过所有者的存活期 四、实战：自引用结构为什么难写 结语 所有权不是限制，而是编译期就消灭内存错误的承诺。</description>
+      <category>Rust</category>
+      <category>编程语言</category>
+    </item>
+  </channel>
+</rss>
