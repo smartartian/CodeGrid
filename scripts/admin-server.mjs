@@ -32,6 +32,15 @@ async function listPosts() {
   );
 }
 
+async function runBuild() {
+  try {
+    const { stdout, stderr } = await exec("npm", ["run", "build"]);
+    return { ok: true, message: (stdout + stderr).slice(-400) };
+  } catch (err) {
+    return { ok: false, error: String(err.stderr || err.message).slice(-400) };
+  }
+}
+
 async function gitPush(commitMsg) {
   try {
     // 后台只管理文章相关文件，避免误提交其他改动
@@ -115,8 +124,20 @@ const server = createServer(async (req, res) => {
     }
 
     if (pathname === "/api/push" && req.method === "POST") {
-      const { message } = JSON.parse(await readBody(req));
+      const { message, build } = JSON.parse(await readBody(req));
+      if (build) {
+        const { buildResult } = await runBuild();
+        if (!buildResult) {
+          sendJson(res, 500, { error: "构建失败，已取消推送，请检查内容" });
+          return;
+        }
+      }
       sendJson(res, 200, await gitPush(message || "docs: 更新文章"));
+      return;
+    }
+
+    if (pathname === "/api/build" && req.method === "POST") {
+      sendJson(res, 200, await runBuild());
       return;
     }
 

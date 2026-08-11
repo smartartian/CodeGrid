@@ -29,11 +29,18 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
     border-bottom: 4px solid var(--red);
+    position: sticky;
+    top: 0;
+    z-index: 10;
   }
   .topbar h1 { font-size: 1.15rem; letter-spacing: 1px; }
   .topbar .sub { font-size: 0.8rem; opacity: 0.75; }
-  .container { max-width: 960px; margin: 24px auto; padding: 0 20px; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .topbar-right .btn { border-color: rgba(255,255,255,0.5); color: #fff; background: transparent; }
+  .topbar-right .btn:hover { background: rgba(255,255,255,0.12); }
+  .container { max-width: 1100px; margin: 22px auto; padding: 0 20px; }
   .card {
     background: #fff;
     border: 1px solid var(--border);
@@ -66,6 +73,7 @@
     color: var(--navy);
     cursor: pointer;
     text-decoration: none;
+    transition: background 0.15s ease;
   }
   .btn:hover { background: var(--wash); }
   .btn.primary { background: var(--navy); border-color: var(--navy); color: #fff; }
@@ -74,34 +82,87 @@
   .btn.danger:hover { background: #fdf0f0; }
   .btn.small { padding: 3px 10px; font-size: 0.8rem; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .list-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 12px; }
+  .search-box { flex: 1; max-width: 320px; }
+  .search-box input {
+    width: 100%; padding: 7px 12px; font-size: 0.88rem; font-family: inherit;
+    border: 1px solid var(--border); border-radius: 3px; outline: none;
+  }
+  .search-box input:focus { border-color: var(--navy); }
   form label { display: block; font-size: 0.85rem; color: var(--soft); margin: 10px 0 4px; }
   form input, form textarea {
-    width: 100%;
-    padding: 8px 12px;
-    font-size: 0.9rem;
-    font-family: inherit;
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    outline: none;
+    width: 100%; padding: 8px 12px; font-size: 0.9rem; font-family: inherit;
+    border: 1px solid var(--border); border-radius: 3px; outline: none;
   }
   form input:focus, form textarea:focus { border-color: var(--navy); }
-  form textarea { min-height: 420px; resize: vertical; font-family: Consolas, "SF Mono", monospace; font-size: 0.85rem; line-height: 1.7; }
   .form-row { display: flex; gap: 14px; }
   .form-row > div { flex: 1; }
   .form-actions { margin-top: 14px; display: flex; gap: 10px; }
   .status {
-    margin: 12px 0;
-    padding: 9px 14px;
-    border-radius: 3px;
-    font-size: 0.88rem;
-    display: none;
+    margin: 12px 0; padding: 9px 14px; border-radius: 3px; font-size: 0.88rem; display: none;
   }
   .status.ok { display: block; background: #eef7ee; border: 1px solid #bfe3bf; color: #2d6a2d; }
   .status.err { display: block; background: #fdf0f0; border: 1px solid #e8b4b8; color: #a01822; }
   .empty { color: var(--muted); font-size: 0.9rem; padding: 20px 0; text-align: center; }
-  .push-bar { display: flex; align-items: center; gap: 12px; }
-  .push-bar input { flex: 1; }
+  .push-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .push-bar input { flex: 1; min-width: 220px; }
+  .push-hint { font-size: 0.8rem; color: var(--muted); margin-top: 8px; }
   .hidden { display: none; }
+
+  /* 编辑器分屏 */
+  .editor-wrap { display: flex; gap: 14px; align-items: stretch; }
+  .editor-pane { flex: 1; min-width: 0; }
+  .editor-pane textarea {
+    width: 100%; height: 520px; resize: none; padding: 14px;
+    font-family: Consolas, "SF Mono", "Courier New", monospace;
+    font-size: 0.85rem; line-height: 1.7; border: 1px solid var(--border);
+    border-radius: 4px; outline: none;
+  }
+  .editor-pane textarea:focus { border-color: var(--navy); }
+  .preview-pane {
+    flex: 1; min-width: 0; height: 520px; overflow-y: auto;
+    padding: 14px 18px; border: 1px solid var(--border); border-radius: 4px;
+    background: #fff; font-size: 0.92rem;
+  }
+  .pane-label {
+    font-size: 0.8rem; color: var(--muted); margin-bottom: 6px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .pane-label .save-state { color: var(--muted); }
+  .pane-label .save-state.dirty { color: var(--red); font-weight: 600; }
+  /* 预览 markdown 样式 */
+  .preview-pane h1, .preview-pane h2, .preview-pane h3 { color: var(--navy); margin: 18px 0 8px; line-height: 1.4; }
+  .preview-pane h1 { font-size: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  .preview-pane h2 { font-size: 1.25rem; }
+  .preview-pane h3 { font-size: 1.1rem; }
+  .preview-pane p { margin: 8px 0; }
+  .preview-pane ul, .preview-pane ol { margin: 8px 0 8px 24px; }
+  .preview-pane ul { list-style: disc; }
+  .preview-pane ol { list-style: decimal; }
+  .preview-pane code {
+    font-family: Consolas, "SF Mono", monospace; font-size: 0.85em;
+    background: var(--wash); border: 1px solid var(--border);
+    border-radius: 3px; padding: 1px 6px; color: var(--navy);
+  }
+  .preview-pane pre { background: var(--wash); border: 1px solid var(--border); border-radius: 4px; padding: 12px; overflow-x: auto; margin: 10px 0; }
+  .preview-pane pre code { background: none; border: none; padding: 0; color: var(--text); }
+  .preview-pane blockquote {
+    border-left: 4px solid var(--red); background: var(--wash);
+    padding: 8px 14px; margin: 10px 0; color: var(--soft);
+  }
+  .preview-pane table { border-collapse: collapse; margin: 10px 0; }
+  .preview-pane th, .preview-pane td { border: 1px solid var(--border); padding: 6px 10px; }
+  .preview-pane th { background: var(--wash); color: var(--navy); }
+  .preview-pane a { color: var(--navy); }
+  .preview-pane img { max-width: 100%; border: 1px solid var(--border); border-radius: 3px; margin: 8px 0; }
+  .preview-pane hr { border: none; border-top: 1px dashed var(--border); margin: 14px 0; }
+  .dirty-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); display: inline-block; margin-right: 6px; animation: blink 1s infinite; }
+  @keyframes blink { 50% { opacity: 0.3; } }
+  @media (max-width: 900px) {
+    .editor-wrap { flex-direction: column; }
+    .editor-pane textarea, .preview-pane { height: 380px; }
+    .container { padding: 0 12px; }
+  }
 </style>
 </head>
 <body>
@@ -110,7 +171,11 @@
       <h1>CodeGrid 文章管理后台</h1>
       <div class="sub">content/posts/ 目录 · 仅本机可访问</div>
     </div>
-    <a class="btn" href="/" target="_blank" style="border-color: rgba(255,255,255,0.5); color:#fff;">打开前台 ↗</a>
+    <div class="topbar-right">
+      <span id="save-state" class="save-state" style="font-size:0.82rem;"></span>
+      <a class="btn" href="http://localhost:5173/" target="_blank">开发预览 ↗</a>
+      <a class="btn" href="http://localhost:4173/" target="_blank">生产预览 ↗</a>
+    </div>
   </div>
 
   <div class="container">
@@ -119,7 +184,10 @@
     <!-- 文章列表 -->
     <div class="card" id="list-card">
       <h2>文章列表</h2>
-      <div style="text-align:right; margin-bottom:10px;">
+      <div class="list-head">
+        <div class="search-box">
+          <input id="search-input" placeholder="搜索标题 / 分类 / 标签..." />
+        </div>
         <button class="btn primary" id="btn-new">+ 新建文章</button>
       </div>
       <table>
@@ -143,7 +211,7 @@
           </div>
         </div>
         <div class="form-actions">
-          <button class="btn primary" type="submit">创建</button>
+          <button class="btn primary" type="submit">创建并编辑</button>
           <button class="btn" type="button" id="new-cancel">取消</button>
         </div>
       </form>
@@ -152,34 +220,51 @@
     <!-- 编辑文章 -->
     <div class="card hidden" id="edit-card">
       <h2>编辑文章：<span id="edit-title"></span></h2>
-      <p style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;">
-        直接编辑 Markdown，frontmatter（--- 之间）为文章元数据：title / date / category / tags / summary
+      <p style="font-size:0.8rem; color:var(--muted); margin-bottom:10px;">
+        Markdown 编辑 · frontmatter（--- 之间）为元数据：title / date / category / tags / summary
       </p>
-      <form id="edit-form">
-        <textarea id="edit-content" spellcheck="false"></textarea>
-        <div class="form-actions">
-          <button class="btn primary" type="submit">保存</button>
-          <button class="btn" type="button" id="edit-back">返回列表</button>
+      <div class="editor-wrap">
+        <div class="editor-pane">
+          <div class="pane-label">
+            <span>编辑</span>
+            <span id="pane-state">已保存</span>
+          </div>
+          <textarea id="edit-content" spellcheck="false"></textarea>
         </div>
-      </form>
+        <div class="editor-pane">
+          <div class="pane-label"><span>实时预览</span><span id="preview-title" style="color:var(--navy); font-weight:600;"></span></div>
+          <div class="preview-pane" id="preview-pane"></div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn primary" type="submit" id="btn-save">保存（Ctrl+S）</button>
+        <button class="btn primary" type="button" id="btn-save-continue">保存并继续编辑</button>
+        <button class="btn" type="button" id="btn-view-site" target="_blank">查看前台文章 ↗</button>
+        <button class="btn" type="button" id="edit-back">返回列表</button>
+      </div>
     </div>
 
     <!-- 一键推送 -->
     <div class="card" id="push-card">
-      <h2>一键推送</h2>
+      <h2>一键构建并推送</h2>
       <div class="push-bar">
         <input id="push-msg" placeholder="提交说明（默认：docs: 更新文章）" />
-        <button class="btn primary" id="btn-push">提交并推送到 GitHub</button>
+        <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--soft); white-space:nowrap;">
+          <input type="checkbox" id="push-build" checked style="width:auto;" /> 推送前先构建
+        </label>
+        <button class="btn primary" id="btn-push">构建并推送到 GitHub</button>
       </div>
-      <p style="font-size:0.8rem; color:var(--muted); margin-top:8px;">
-        会执行 git add（content/posts、public/covers、public/feed.xml）+ commit + push。
-        建议先在本机跑一次 npm run build 生成封面与 RSS 后再推送。
+      <p class="push-hint">
+        构建会重新生成封面图与 RSS feed；然后 git add（content/posts、public/covers、public/feed.xml）+ commit + push。
       </p>
     </div>
   </div>
 
 <script>
 const $ = (id) => document.getElementById(id);
+let allPosts = [];
+let currentId = null;
+let dirty = false;
 
 function showStatus(msg, ok = true) {
   const el = $("status");
@@ -199,33 +284,122 @@ async function api(url, method = "GET", body) {
   return data;
 }
 
+/* ---------- Markdown 预览渲染（与前台渲染规则一致） ---------- */
+function escapeHtml(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function inline(text) {
+  return escapeHtml(text)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+}
+function renderMarkdown(md) {
+  const lines = md.split("\n");
+  const out = [];
+  let i = 0, list = null, table = null, code = null, quote = null;
+  const closeList = () => { if (list) { out.push(list); list = null; } };
+  const closeTable = () => { if (table) { out.push(table); table = null; } };
+  const closeQuote = () => { if (quote) { out.push(quote); quote = null; } };
+  for (; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.startsWith("```")) {
+      closeList(); closeTable(); closeQuote();
+      if (code) { out.push(`<pre><code>${escapeHtml(code.join("\n"))}</code></pre>`); code = null; }
+      else code = [];
+      continue;
+    }
+    if (code) { code.push(line); continue; }
+    if (line.trim() === "") { closeList(); closeTable(); closeQuote(); continue; }
+    const img = line.match(/^!\[([^\]]*)\]\(([^)\s]+)\)$/);
+    if (img) {
+      closeList(); closeTable(); closeQuote();
+      out.push(`<p><img src="${img[2]}" alt="${img[1]}" /><br/><small style="color:var(--muted)">${img[1]}</small></p>`);
+      continue;
+    }
+    if (line.trim().startsWith("|")) {
+      closeList(); closeQuote();
+      const cells = line.split("|").slice(1, -1).map((c) => c.trim());
+      if (table) {
+        if (!cells.every((c) => /^:?-{2,}:?$/.test(c))) {
+          table += `<tr>${cells.map((c) => `<td>${inline(c)}</td>`).join("")}</tr>`;
+        }
+      } else {
+        table = `<table><thead><tr>${cells.map((c) => `<th>${inline(c)}</th>`).join("")}</tr></thead><tbody>`;
+      }
+      continue;
+    }
+    if (line.startsWith("> ")) {
+      closeList(); closeTable();
+      if (!quote) quote = `<blockquote>`;
+      quote += `<p>${inline(line.slice(2))}</p>`;
+      continue;
+    }
+    if (/^\s*[-*] /.test(line)) {
+      closeTable(); closeQuote();
+      if (!list) list = `<ul>`;
+      list += `<li>${inline(line.replace(/^\s*[-*] /, ""))}</li>`;
+      continue;
+    }
+    if (/^\s*\d+\. /.test(line)) {
+      closeTable(); closeQuote();
+      if (!list) list = `<ol>`;
+      list += `<li>${inline(line.replace(/^\s*\d+\. /, ""))}</li>`;
+      continue;
+    }
+    closeList(); closeTable(); closeQuote();
+    const h = line.match(/^(#{1,3})\s+(.*)$/);
+    if (h) {
+      const lv = h[1].length;
+      out.push(`<h${lv}>${inline(h[2])}</h${lv}>`);
+      continue;
+    }
+    out.push(`<p>${inline(line)}</p>`);
+  }
+  closeList(); closeTable(); closeQuote();
+  if (code) out.push(`<pre><code>${escapeHtml(code.join("\n"))}</code></pre>`);
+  return out.join("\n");
+}
+
+/* ---------- 视图切换 ---------- */
 function showList() {
   $("new-card").classList.add("hidden");
   $("edit-card").classList.add("hidden");
   $("list-card").classList.remove("hidden");
   $("push-card").classList.remove("hidden");
-  loadPosts();
+  renderList();
+}
+
+function renderList(filter = "") {
+  const tbody = $("post-tbody");
+  tbody.innerHTML = "";
+  const kw = filter.trim().toLowerCase();
+  const list = allPosts
+    .filter((p) => !kw || (p.title + p.category + p.tags + p.id).toLowerCase().includes(kw))
+    .sort((a, b) => (a.date < b.date ? 1 : -1));
+  $("list-empty").classList.toggle("hidden", list.length > 0);
+  for (const p of list) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><a href="javascript:void(0)" data-id="${p.id}" class="open-edit">${p.title}</a>
+        <div class="tag-row">${p.tags || ""}</div></td>
+      <td>${p.category}</td>
+      <td>${p.date}</td>
+      <td class="actions">
+        <button class="btn small open-edit" data-id="${p.id}">编辑</button>
+        <a class="btn small" href="http://localhost:4173/article/${p.id}" target="_blank">预览</a>
+        <button class="btn small danger del-post" data-id="${p.id}">删除</button>
+      </td>`;
+    tbody.appendChild(tr);
+  }
 }
 
 async function loadPosts() {
   try {
     const { posts } = await api("/api/posts");
-    const tbody = $("post-tbody");
-    tbody.innerHTML = "";
-    $("list-empty").classList.toggle("hidden", posts.length > 0);
-    for (const p of posts.sort((a, b) => (a.date < b.date ? 1 : -1))) {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td><a href="javascript:void(0)" data-id="${p.id}" class="open-edit">${p.title}</a>
-          <div class="tag-row">${p.tags || ""}</div></td>
-        <td>${p.category}</td>
-        <td>${p.date}</td>
-        <td class="actions">
-          <button class="btn small open-edit" data-id="${p.id}">编辑</button>
-          <button class="btn small danger del-post" data-id="${p.id}">删除</button>
-        </td>`;
-      tbody.appendChild(tr);
-    }
+    allPosts = posts;
+    renderList($("search-input").value);
   } catch (e) {
     showStatus(e.message, false);
   }
@@ -240,17 +414,52 @@ async function openEditor(id) {
     $("new-card").classList.add("hidden");
     $("edit-card").classList.remove("hidden");
     $("edit-title").textContent = id;
+    currentId = id;
     $("edit-content").value = content;
+    $("btn-view-site").href = `http://localhost:4173/article/${id}`;
+    updatePreview();
+    setDirty(false);
     window.scrollTo(0, 0);
   } catch (e) {
     showStatus(e.message, false);
   }
 }
 
+/* ---------- 预览与脏标记 ---------- */
+function updatePreview() {
+  const md = $("edit-content").value;
+  $("preview-pane").innerHTML = renderMarkdown(md);
+  const m = md.match(/^title:\s*(.+)$/m);
+  $("preview-title").textContent = m ? m[1].trim() : "";
+}
+
+function setDirty(v) {
+  dirty = v;
+  $("pane-state").innerHTML = v ? '<span class="dirty-dot"></span>未保存' : "已保存";
+  $("save-state").innerHTML = v ? '<span class="dirty-dot"></span>未保存' : "";
+}
+
+async function savePost(goBack = false) {
+  if (!currentId) return;
+  try {
+    await api(`/api/posts/${encodeURIComponent(currentId)}`, "PUT", {
+      content: $("edit-content").value,
+    });
+    showStatus("已保存");
+    setDirty(false);
+    if (goBack) showList();
+  } catch (err) {
+    showStatus(err.message, false);
+  }
+}
+
+/* ---------- 事件 ---------- */
 document.addEventListener("click", async (e) => {
   const openBtn = e.target.closest(".open-edit");
-  if (openBtn) return openEditor(openBtn.dataset.id);
-
+  if (openBtn) {
+    if (dirty && !confirm("当前有未保存的修改，确定放弃并离开？")) return;
+    return openEditor(openBtn.dataset.id);
+  }
   if (e.target.closest(".del-post")) {
     const id = e.target.closest(".del-post").dataset.id;
     if (!confirm(`确定删除文章「${id}」？`)) return;
@@ -262,7 +471,6 @@ document.addEventListener("click", async (e) => {
       showStatus(err.message, false);
     }
   }
-
   if (e.target.id === "btn-new") {
     $("list-card").classList.add("hidden");
     $("push-card").classList.add("hidden");
@@ -271,7 +479,10 @@ document.addEventListener("click", async (e) => {
     $("new-id").focus();
   }
   if (e.target.id === "new-cancel") showList();
-  if (e.target.id === "edit-back") showList();
+  if (e.target.id === "edit-back") {
+    if (dirty && !confirm("当前有未保存的修改，确定放弃并返回？")) return;
+    showList();
+  }
   if (e.target.id === "btn-gen-id") {
     const title = prompt("输入文章标题以生成 ID：");
     if (title) {
@@ -310,38 +521,49 @@ summary:
   }
 });
 
-$("edit-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const id = $("edit-title").textContent;
-  try {
-    await api(`/api/posts/${encodeURIComponent(id)}`, "PUT", {
-      content: $("edit-content").value,
-    });
-    showStatus("已保存");
-    showList();
-  } catch (err) {
-    showStatus(err.message, false);
-  }
+$("edit-content").addEventListener("input", () => {
+  updatePreview();
+  setDirty(true);
 });
+
+$("btn-save").addEventListener("click", () => savePost(false));
+$("btn-save-continue").addEventListener("click", () => savePost(false));
+
+$("search-input").addEventListener("input", (e) => renderList(e.target.value));
 
 $("btn-push").addEventListener("click", async () => {
   const btn = $("btn-push");
   btn.disabled = true;
-  btn.textContent = "推送中...";
+  btn.textContent = "构建推送中...";
   try {
     const msg = $("push-msg").value.trim() || "docs: 更新文章";
-    const r = await api("/api/push", "POST", { message: msg });
+    const doBuild = $("push-build").checked;
+    const r = await api("/api/push", "POST", { message: msg, build: doBuild });
     showStatus(r.message, r.ok);
+    loadPosts();
   } catch (err) {
     showStatus(err.message, false);
   } finally {
     btn.disabled = false;
-    btn.textContent = "提交并推送到 GitHub";
+    btn.textContent = "构建并推送到 GitHub";
   }
 });
 
-// 前台预览链接：openEditor 时同步打开前台文章页
-showList();
+document.addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+    e.preventDefault();
+    savePost(false);
+  }
+});
+
+window.addEventListener("beforeunload", (e) => {
+  if (dirty) {
+    e.preventDefault();
+    e.returnValue = "";
+  }
+});
+
+loadPosts();
 </script>
 </body>
 </html>
