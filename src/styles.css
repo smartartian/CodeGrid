@@ -888,6 +888,13 @@ button {
   padding: 28px 0 0;
 }
 
+.page-loading {
+  padding: 60px 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
 .article-h1 {
   font-size: 1.85rem;
   font-weight: 700;

@@ -100,25 +100,33 @@ export default function GitHubHeatmap({ username = "smartartian" }) {
         </div>
         <div className="heatmap-scroll">
           <svg width={width} height={height} role="img" aria-label="最近一年的 GitHub 提交热力图">
+            <desc>共 {totalCommits} 次提交，颜色越深提交越多</desc>
             {weeks.map((week, wi) =>
-              week.map((day, di) => (
-                <rect
-                  key={day.iso}
-                  x={wi * (CELL + GAP)}
-                  y={di * (CELL + GAP)}
-                  width={CELL}
-                  height={CELL}
-                  rx={2}
-                  fill={day.inRange ? LEVEL_COLORS[day.level] : "transparent"}
-                  opacity={day.inRange ? 1 : 0}
-                >
-                  <title>
-                    {day.inRange
-                      ? `${day.iso}：${day.count} 次提交`
-                      : `${day.iso}（范围外）`}
-                  </title>
-                </rect>
-              )),
+              week.map((day, di) =>
+                day.inRange && day.count > 0 ? (
+                  <rect
+                    key={day.iso}
+                    x={wi * (CELL + GAP)}
+                    y={di * (CELL + GAP)}
+                    width={CELL}
+                    height={CELL}
+                    rx={2}
+                    fill={LEVEL_COLORS[day.level]}
+                  >
+                    <title>{`${day.iso}：${day.count} 次提交`}</title>
+                  </rect>
+                ) : (
+                  <rect
+                    key={day.iso}
+                    x={wi * (CELL + GAP)}
+                    y={di * (CELL + GAP)}
+                    width={CELL}
+                    height={CELL}
+                    rx={2}
+                    fill={day.inRange ? LEVEL_COLORS[day.level] : "transparent"}
+                  />
+                ),
+              ),
             )}
           </svg>
         </div>

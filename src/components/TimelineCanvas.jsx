@@ -106,6 +106,11 @@ export default function TimelineCanvas({ articles }) {
       const x0 = Math.max(8, (st.width - contentW) / 2);
       const left = x0 - st.offset;
 
+      // 动画进度：所有节点完成后停止 rAF 循环
+      const elapsed = st.done ? Infinity : performance.now() - st.t0;
+      const lastDelay = (n - 1) * 90;
+      const animDone = reducedMotion() || elapsed >= lastDelay + 500;
+
       // 主线：渐变
       const grad = ctx.createLinearGradient(0, 0, st.width, 0);
       grad.addColorStop(0, COLORS.washBorder);
@@ -124,10 +129,8 @@ export default function TimelineCanvas({ articles }) {
       articles.forEach((a, i) => {
         const cx = left + i * (CARD_W + GAP) + CARD_W / 2;
         const delay = i * 90;
-        const elapsed = st.done ? 9999 : performance.now() - st.t0;
         let prog = (elapsed - delay) / 500;
-        if (st.done) prog = 1;
-        if (reducedMotion()) prog = 1;
+        if (st.done || reducedMotion()) prog = 1;
         if (prog < 0) prog = 0;
         if (prog > 1) prog = 1;
         const ease = 1 - Math.pow(1 - prog, 3);
@@ -225,8 +228,10 @@ export default function TimelineCanvas({ articles }) {
         ctx.restore();
       });
 
-      if (!st.done) {
+      if (!st.done && !animDone) {
         requestAnimationFrame(draw);
+      } else {
+        st.done = true;
       }
     }
 
