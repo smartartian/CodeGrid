@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CodeGrid · 文章管理后台</title>
+<style>
+  :root {
+    --navy: #0d4a8a;
+    --navy-dark: #083a6d;
+    --red: #c41e2a;
+    --wash: #f0f4f8;
+    --border: #d9e2ec;
+    --text: #333;
+    --soft: #555;
+    --muted: #888;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    background: #f5f7fa;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .topbar {
+    background: var(--navy);
+    color: #fff;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 4px solid var(--red);
+  }
+  .topbar h1 { font-size: 1.15rem; letter-spacing: 1px; }
+  .topbar .sub { font-size: 0.8rem; opacity: 0.75; }
+  .container { max-width: 960px; margin: 24px auto; padding: 0 20px; }
+  .card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--navy);
+    border-radius: 4px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+  }
+  .card h2 {
+    font-size: 1rem;
+    color: var(--navy);
+    margin-bottom: 14px;
+    padding-left: 10px;
+    border-left: 4px solid var(--red);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #eee; }
+  th { color: var(--soft); font-weight: 600; background: var(--wash); }
+  td a { color: var(--navy); text-decoration: none; }
+  td a:hover { text-decoration: underline; }
+  .tag-row { color: var(--muted); font-size: 0.8rem; }
+  .actions { white-space: nowrap; }
+  .btn {
+    display: inline-block;
+    padding: 6px 16px;
+    font-size: 0.88rem;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: #fff;
+    color: var(--navy);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .btn:hover { background: var(--wash); }
+  .btn.primary { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .btn.primary:hover { background: var(--navy-dark); }
+  .btn.danger { color: var(--red); border-color: #e8b4b8; }
+  .btn.danger:hover { background: #fdf0f0; }
+  .btn.small { padding: 3px 10px; font-size: 0.8rem; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  form label { display: block; font-size: 0.85rem; color: var(--soft); margin: 10px 0 4px; }
+  form input, form textarea {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    outline: none;
+  }
+  form input:focus, form textarea:focus { border-color: var(--navy); }
+  form textarea { min-height: 420px; resize: vertical; font-family: Consolas, "SF Mono", monospace; font-size: 0.85rem; line-height: 1.7; }
+  .form-row { display: flex; gap: 14px; }
+  .form-row > div { flex: 1; }
+  .form-actions { margin-top: 14px; display: flex; gap: 10px; }
+  .status {
+    margin: 12px 0;
+    padding: 9px 14px;
+    border-radius: 3px;
+    font-size: 0.88rem;
+    display: none;
+  }
+  .status.ok { display: block; background: #eef7ee; border: 1px solid #bfe3bf; color: #2d6a2d; }
+  .status.err { display: block; background: #fdf0f0; border: 1px solid #e8b4b8; color: #a01822; }
+  .empty { color: var(--muted); font-size: 0.9rem; padding: 20px 0; text-align: center; }
+  .push-bar { display: flex; align-items: center; gap: 12px; }
+  .push-bar input { flex: 1; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div>
+      <h1>CodeGrid 文章管理后台</h1>
+      <div class="sub">content/posts/ 目录 · 仅本机可访问</div>
+    </div>
+    <a class="btn" href="/" target="_blank" style="border-color: rgba(255,255,255,0.5); color:#fff;">打开前台 ↗</a>
+  </div>
+
+  <div class="container">
+    <div id="status" class="status"></div>
+
+    <!-- 文章列表 -->
+    <div class="card" id="list-card">
+      <h2>文章列表</h2>
+      <div style="text-align:right; margin-bottom:10px;">
+        <button class="btn primary" id="btn-new">+ 新建文章</button>
+      </div>
+      <table>
+        <thead><tr><th>标题</th><th>分类</th><th>日期</th><th></th></tr></thead>
+        <tbody id="post-tbody"></tbody>
+      </table>
+      <div id="list-empty" class="empty hidden">暂无文章</div>
+    </div>
+
+    <!-- 新建文章 -->
+    <div class="card hidden" id="new-card">
+      <h2>新建文章</h2>
+      <form id="new-form">
+        <div class="form-row">
+          <div>
+            <label>文章 ID（文件名，字母/数字/中文/连字符）</label>
+            <input id="new-id" required placeholder="如 my-first-post" />
+          </div>
+          <div style="max-width:180px; display:flex; align-items:flex-end;">
+            <button class="btn" type="button" id="btn-gen-id" style="width:100%;">自动生成</button>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" type="submit">创建</button>
+          <button class="btn" type="button" id="new-cancel">取消</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- 编辑文章 -->
+    <div class="card hidden" id="edit-card">
+      <h2>编辑文章：<span id="edit-title"></span></h2>
+      <p style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;">
+        直接编辑 Markdown，frontmatter（--- 之间）为文章元数据：title / date / category / tags / summary
+      </p>
+      <form id="edit-form">
+        <textarea id="edit-content" spellcheck="false"></textarea>
+        <div class="form-actions">
+          <button class="btn primary" type="submit">保存</button>
+          <button class="btn" type="button" id="edit-back">返回列表</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- 一键推送 -->
+    <div class="card" id="push-card">
+      <h2>一键推送</h2>
+      <div class="push-bar">
+        <input id="push-msg" placeholder="提交说明（默认：docs: 更新文章）" />
+        <button class="btn primary" id="btn-push">提交并推送到 GitHub</button>
+      </div>
+      <p style="font-size:0.8rem; color:var(--muted); margin-top:8px;">
+        会执行 git add（content/posts、public/covers、public/feed.xml）+ commit + push。
+        建议先在本机跑一次 npm run build 生成封面与 RSS 后再推送。
+      </p>
+    </div>
+  </div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+function showStatus(msg, ok = true) {
+  const el = $("status");
+  el.className = "status " + (ok ? "ok" : "err");
+  el.textContent = msg;
+  setTimeout(() => (el.className = "status"), 4000);
+}
+
+async function api(url, method = "GET", body) {
+  const res = await fetch(url, {
+    method,
+    headers: body ? { "Content-Type": "application/json" } : undefined,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `请求失败 ${res.status}`);
+  return data;
+}
+
+function showList() {
+  $("new-card").classList.add("hidden");
+  $("edit-card").classList.add("hidden");
+  $("list-card").classList.remove("hidden");
+  $("push-card").classList.remove("hidden");
+  loadPosts();
+}
+
+async function loadPosts() {
+  try {
+    const { posts } = await api("/api/posts");
+    const tbody = $("post-tbody");
+    tbody.innerHTML = "";
+    $("list-empty").classList.toggle("hidden", posts.length > 0);
+    for (const p of posts.sort((a, b) => (a.date < b.date ? 1 : -1))) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><a href="javascript:void(0)" data-id="${p.id}" class="open-edit">${p.title}</a>
+          <div class="tag-row">${p.tags || ""}</div></td>
+        <td>${p.category}</td>
+        <td>${p.date}</td>
+        <td class="actions">
+          <button class="btn small open-edit" data-id="${p.id}">编辑</button>
+          <button class="btn small danger del-post" data-id="${p.id}">删除</button>
+        </td>`;
+      tbody.appendChild(tr);
+    }
+  } catch (e) {
+    showStatus(e.message, false);
+  }
+}
+
+async function openEditor(id) {
+  try {
+    const res = await fetch(`/api/posts/${encodeURIComponent(id)}`);
+    const content = await res.text();
+    $("list-card").classList.add("hidden");
+    $("push-card").classList.add("hidden");
+    $("new-card").classList.add("hidden");
+    $("edit-card").classList.remove("hidden");
+    $("edit-title").textContent = id;
+    $("edit-content").value = content;
+    window.scrollTo(0, 0);
+  } catch (e) {
+    showStatus(e.message, false);
+  }
+}
+
+document.addEventListener("click", async (e) => {
+  const openBtn = e.target.closest(".open-edit");
+  if (openBtn) return openEditor(openBtn.dataset.id);
+
+  if (e.target.closest(".del-post")) {
+    const id = e.target.closest(".del-post").dataset.id;
+    if (!confirm(`确定删除文章「${id}」？`)) return;
+    try {
+      await api(`/api/posts/${encodeURIComponent(id)}`, "DELETE");
+      showStatus("已删除");
+      loadPosts();
+    } catch (err) {
+      showStatus(err.message, false);
+    }
+  }
+
+  if (e.target.id === "btn-new") {
+    $("list-card").classList.add("hidden");
+    $("push-card").classList.add("hidden");
+    $("new-card").classList.remove("hidden");
+    $("new-id").value = "";
+    $("new-id").focus();
+  }
+  if (e.target.id === "new-cancel") showList();
+  if (e.target.id === "edit-back") showList();
+  if (e.target.id === "btn-gen-id") {
+    const title = prompt("输入文章标题以生成 ID：");
+    if (title) {
+      $("new-id").value = title
+        .toLowerCase()
+        .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 40);
+    }
+  }
+});
+
+$("new-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const id = $("new-id").value.trim();
+  if (!id) return showStatus("请输入文章 ID", false);
+  const date = new Date().toISOString().slice(0, 10);
+  const content = `---
+title: ${id}
+date: ${date}
+category: 未分类
+tags: 
+summary: 
+---
+
+# ${id}
+
+开始写作吧...
+`;
+  try {
+    await api("/api/posts", "POST", { id, content });
+    showStatus("已创建，正在编辑");
+    openEditor(id);
+  } catch (err) {
+    showStatus(err.message, false);
+  }
+});
+
+$("edit-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const id = $("edit-title").textContent;
+  try {
+    await api(`/api/posts/${encodeURIComponent(id)}`, "PUT", {
+      content: $("edit-content").value,
+    });
+    showStatus("已保存");
+    showList();
+  } catch (err) {
+    showStatus(err.message, false);
+  }
+});
+
+$("btn-push").addEventListener("click", async () => {
+  const btn = $("btn-push");
+  btn.disabled = true;
+  btn.textContent = "推送中...";
+  try {
+    const msg = $("push-msg").value.trim() || "docs: 更新文章";
+    const r = await api("/api/push", "POST", { message: msg });
+    showStatus(r.message, r.ok);
+  } catch (err) {
+    showStatus(err.message, false);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "提交并推送到 GitHub";
+  }
+});
+
+// 前台预览链接：openEditor 时同步打开前台文章页
+showList();
+</script>
+</body>
+</html>

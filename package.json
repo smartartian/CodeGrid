@@ -8,6 +8,8 @@
     "prebuild": "node scripts/gen-rss.mjs && node scripts/gen-covers.mjs && node scripts/gen-content-images.mjs",
     "build": "vite build",
     "preview": "vite preview",
+    "new": "node scripts/new-post.mjs",
+    "admin": "node scripts/admin-server.mjs",
     "fetch:contrib": "node scripts/fetch-contributions.mjs smartartian"
   },
   "dependencies": {
