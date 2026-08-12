@@ -29,8 +29,8 @@ const groups = [
   {
     title: "友链",
     items: [
-      { name: "示例博客 A", desc: "前端工程实践分享", url: "https://codegrid.cn" },
-      { name: "示例博客 B", desc: "后端与架构笔记", url: "https://codegrid.cn" },
+      { name: "示例博客 A", desc: "前端工程实践分享", url: "https://blog.codegrid.cn" },
+      { name: "示例博客 B", desc: "后端与架构笔记", url: "https://blog.codegrid.cn" },
     ],
   },
 ];
