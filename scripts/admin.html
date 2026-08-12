@@ -221,6 +221,52 @@
       </form>
     </div>
 
+    <!-- 补全元数据（上传缺 frontmatter 的 md 时显示） -->
+    <div class="card hidden" id="meta-card">
+      <h2>补全文章元数据</h2>
+      <p style="font-size:0.8rem; color:var(--muted); margin-bottom:10px;">
+        上传的文件缺少 frontmatter（--- 开头），请填写以下元数据，将自动补全后创建文章。
+      </p>
+      <form id="meta-form">
+        <div class="form-row">
+          <div>
+            <label>标题（title）</label>
+            <input id="meta-title" required placeholder="文章标题" />
+          </div>
+          <div>
+            <label>分类（category）</label>
+            <input id="meta-category" placeholder="如 前端 / 后端 / 工程化 / 运维 / 架构" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>日期（date）</label>
+            <input id="meta-date" type="date" required />
+          </div>
+          <div>
+            <label>标签（tags，逗号分隔）</label>
+            <input id="meta-tags" placeholder="如 React, Vite" />
+          </div>
+        </div>
+        <div>
+          <label>摘要（summary）</label>
+          <input id="meta-summary" placeholder="文章摘要，用于列表展示" />
+        </div>
+        <div>
+          <label>文章 ID（文件名，留空自动生成）</label>
+          <input id="meta-id" placeholder="留空则由文件名生成" />
+        </div>
+        <div>
+          <label>正文内容（可修改）</label>
+          <textarea id="meta-body" style="min-height:200px; font-family:Consolas,'SF Mono',monospace; font-size:0.85rem;" spellcheck="false"></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" type="submit">补全并创建</button>
+          <button class="btn" type="button" id="meta-cancel">取消</button>
+        </div>
+      </form>
+    </div>
+
     <!-- 编辑文章 -->
     <div class="card hidden" id="edit-card">
       <h2>编辑文章：<span id="edit-title"></span></h2>
@@ -369,10 +415,28 @@ function renderMarkdown(md) {
 /* ---------- 视图切换 ---------- */
 function showList() {
   $("new-card").classList.add("hidden");
+  $("meta-card").classList.add("hidden");
   $("edit-card").classList.add("hidden");
   $("list-card").classList.remove("hidden");
   $("push-card").classList.remove("hidden");
   renderList();
+}
+
+function showMetaCard(meta) {
+  // meta: { id, title, category, date, tags, summary, body }
+  $("list-card").classList.add("hidden");
+  $("push-card").classList.add("hidden");
+  $("new-card").classList.add("hidden");
+  $("edit-card").classList.add("hidden");
+  $("meta-card").classList.remove("hidden");
+  $("meta-id").value = meta.id || "";
+  $("meta-title").value = meta.title || "";
+  $("meta-category").value = meta.category || "";
+  $("meta-date").value = meta.date || new Date().toISOString().slice(0, 10);
+  $("meta-tags").value = meta.tags || "";
+  $("meta-summary").value = meta.summary || "";
+  $("meta-body").value = meta.body || "";
+  window.scrollTo(0, 0);
 }
 
 function renderList(filter = "") {
@@ -416,6 +480,7 @@ async function openEditor(id) {
     $("list-card").classList.add("hidden");
     $("push-card").classList.add("hidden");
     $("new-card").classList.add("hidden");
+    $("meta-card").classList.add("hidden");
     $("edit-card").classList.remove("hidden");
     $("edit-title").textContent = id;
     currentId = id;
@@ -548,28 +613,71 @@ $("file-input").addEventListener("change", async (e) => {
   }
   try {
     const content = await file.text();
-    if (!content.startsWith("---")) {
-      showStatus("文件缺少 frontmatter（需以 --- 开头）", false);
-      return;
-    }
-    // id 取文件名（去 .md），转小写、非字母数字中文转连字符
-    const id = file.name
+    const idBase = file.name
       .replace(/\.md$/i, "")
       .toLowerCase()
       .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, "-")
       .replace(/^-+|-+$/g, "")
       .slice(0, 60);
-    if (!id) {
+    if (!idBase) {
       showStatus("文件名无法生成合法 ID", false);
       return;
     }
-    await api("/api/posts", "POST", { id, content });
-    showStatus(`已上传「${file.name}」，正在编辑`);
-    openEditor(id);
+    // 已有 frontmatter：直接创建
+    if (content.startsWith("---")) {
+      await api("/api/posts", "POST", { id: idBase, content });
+      showStatus(`已上传「${file.name}」，正在编辑`);
+      openEditor(idBase);
+      return;
+    }
+    // 缺少 frontmatter：进入元数据配置界面补全
+    const firstH = content.match(/^#\s+(.+)$/m);
+    showMetaCard({
+      id: idBase,
+      title: firstH ? firstH[1].trim() : file.name.replace(/\.md$/i, ""),
+      category: "",
+      date: new Date().toISOString().slice(0, 10),
+      tags: "",
+      summary: "",
+      body: content.trim(),
+    });
+    showStatus("该文件缺少 frontmatter，请补全元数据后创建", false);
   } catch (err) {
     showStatus(err.message || "上传失败", false);
   }
 });
+
+/* ---------- 补全元数据并创建 ---------- */
+$("meta-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const id = ($("meta-id").value.trim() || $("meta-title").value.trim())
+    .toLowerCase()
+    .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+  if (!id) return showStatus("文章 ID 不能为空", false);
+  const title = $("meta-title").value.trim();
+  if (!title) return showStatus("标题不能为空", false);
+  const content = `---
+title: ${title}
+date: ${$("meta-date").value || new Date().toISOString().slice(0, 10)}
+category: ${$("meta-category").value.trim() || "未分类"}
+tags: ${$("meta-tags").value.trim()}
+summary: ${$("meta-summary").value.trim()}
+---
+
+${$("meta-body").value.trim()}
+`;
+  try {
+    await api("/api/posts", "POST", { id, content });
+    showStatus(`已创建「${id}」，正在编辑`);
+    openEditor(id);
+  } catch (err) {
+    showStatus(err.message || "创建失败", false);
+  }
+});
+
+$("meta-cancel").addEventListener("click", () => showList());
 
 $("btn-push").addEventListener("click", async () => {
   const btn = $("btn-push");
