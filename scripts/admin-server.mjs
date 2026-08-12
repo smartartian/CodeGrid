@@ -126,9 +126,9 @@ const server = createServer(async (req, res) => {
     if (pathname === "/api/push" && req.method === "POST") {
       const { message, build } = JSON.parse(await readBody(req));
       if (build) {
-        const { buildResult } = await runBuild();
-        if (!buildResult) {
-          sendJson(res, 500, { error: "构建失败，已取消推送，请检查内容" });
+        const result = await runBuild();
+        if (!result.ok) {
+          sendJson(res, 500, { error: `构建失败，已取消推送：${result.error || "请检查内容"}` });
           return;
         }
       }
