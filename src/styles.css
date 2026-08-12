@@ -1340,8 +1340,33 @@ button {
     grid-template-columns: 1fr 1fr;
   }
 
+  /* 顶部栏自适应：小屏保留 RSS，日期与链接压缩 */
+  .topbar-inner {
+    height: auto;
+    min-height: 34px;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+    padding: 4px 0;
+  }
+
+  .topbar-date {
+    font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .topbar-links {
-    display: none;
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .topbar-date {
+    max-width: 55vw;
   }
 }
 

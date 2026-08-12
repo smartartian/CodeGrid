@@ -31,7 +31,7 @@ export default function About() {
           target="_blank"
           rel="noreferrer"
         >
-          <span className="site-link-name">拟物化设计（Skeuomorphism）</span>
+          <span className="site-link-name">Skeuomorphism</span>
           <span className="site-link-url">smartartian.github.io/Skeuomorphism</span>
         </a>
         <a

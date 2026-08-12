@@ -1,4 +1,4 @@
-// 抽象环形徽标（政务风复刻，非真实国徽）
+// 代码网格徽标 v4：白色背景 + 深蓝网格线 + 中心红色代码尖括号
 export default function Emblem({ size = 72 }) {
   return (
     <svg
@@ -6,30 +6,27 @@ export default function Emblem({ size = 72 }) {
       height={size}
       viewBox="0 0 100 100"
       role="img"
-      aria-label="站点徽标"
+      aria-label="代码网格 CodeGrid 站点徽标"
     >
-      <circle cx="50" cy="50" r="46" fill="#fff" stroke="#0d4a8a" strokeWidth="4" />
-      <circle cx="50" cy="50" r="36" fill="none" stroke="#c41e2a" strokeWidth="3" />
-      <circle cx="50" cy="50" r="26" fill="#0d4a8a" />
-      <circle cx="50" cy="50" r="17" fill="none" stroke="#fff" strokeWidth="3" />
-      <circle cx="50" cy="50" r="9" fill="#c41e2a" />
-      {/* 顶部小齿轮齿，呼应政务徽标的庄重感 */}
-      {Array.from({ length: 8 }).map((_, i) => {
-        const angle = (i * 45 * Math.PI) / 180;
-        const cx = 50 + Math.sin(angle) * 46;
-        const cy = 50 - Math.cos(angle) * 46;
-        return (
-          <rect
-            key={i}
-            x={cx - 3.5}
-            y={cy - 3.5}
-            width="7"
-            height="7"
-            fill="#0d4a8a"
-            transform={`rotate(${i * 45} ${cx} ${cy})`}
-          />
-        );
-      })}
+      {/* 白色圆角方形背景 */}
+      <rect x="8" y="8" width="84" height="84" rx="16" fill="#ffffff" stroke="#d9e2ec" strokeWidth="2" />
+
+      {/* 3×3 网格线（深蓝，突出） */}
+      <g stroke="#0d4a8a" strokeWidth="2.4" opacity="0.55">
+        <line x1="22" y1="33" x2="78" y2="33" />
+        <line x1="22" y1="50" x2="78" y2="50" />
+        <line x1="22" y1="67" x2="78" y2="67" />
+        <line x1="33" y1="22" x2="33" y2="78" />
+        <line x1="50" y1="22" x2="50" y2="78" />
+        <line x1="67" y1="22" x2="67" y2="78" />
+      </g>
+
+      {/* 中心红色代码尖括号 </> */}
+      <g stroke="#c41e2a" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" fill="none">
+        <path d="M39 40 L29 50 L39 60" />
+        <path d="M61 40 L71 50 L61 60" />
+        <path d="M55 35 L45 65" />
+      </g>
     </svg>
   );
 }

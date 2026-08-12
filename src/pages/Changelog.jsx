@@ -8,7 +8,7 @@ const changelog = [
     date: "2026-08-11",
     tag: "上线",
     items: [
-      "CodeGrid 政务风个人技术博客上线",
+      "代码网格 CodeGrid 政务风个人技术博客上线",
       "文章改为 .md 文件管理，GitHub 自动构建部署",
       "自定义域名 blog.codegrid.cn",
     ],

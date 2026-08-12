@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>CodeGrid</title>
+    <title>代码网格</title>
     <link>https://blog.codegrid.cn</link>
     <description>记录技术思考与工程实践</description>
     <language>zh-cn</language>
