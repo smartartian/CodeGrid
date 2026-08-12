@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Ensure esbuild binary (postinstall may be skipped)
+        run: npm rebuild esbuild
+
       - name: Build (generates covers, feed.xml, content images)
         run: npm run build
 
