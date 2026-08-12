@@ -188,7 +188,11 @@
         <div class="search-box">
           <input id="search-input" placeholder="搜索标题 / 分类 / 标签..." />
         </div>
-        <button class="btn primary" id="btn-new">+ 新建文章</button>
+        <div style="display:flex; gap:10px;">
+          <button class="btn" id="btn-upload">上传 MD</button>
+          <input type="file" id="file-input" accept=".md,.markdown,text/markdown" class="hidden" />
+          <button class="btn primary" id="btn-new">+ 新建文章</button>
+        </div>
       </div>
       <table>
         <thead><tr><th>标题</th><th>分类</th><th>日期</th><th></th></tr></thead>
@@ -530,6 +534,42 @@ $("btn-save").addEventListener("click", () => savePost(false));
 $("btn-save-continue").addEventListener("click", () => savePost(false));
 
 $("search-input").addEventListener("input", (e) => renderList(e.target.value));
+
+/* ---------- 上传 MD 文件 ---------- */
+$("btn-upload").addEventListener("click", () => $("file-input").click());
+
+$("file-input").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+  if (!/\.md$/i.test(file.name)) {
+    showStatus("仅支持 .md 文件", false);
+    return;
+  }
+  try {
+    const content = await file.text();
+    if (!content.startsWith("---")) {
+      showStatus("文件缺少 frontmatter（需以 --- 开头）", false);
+      return;
+    }
+    // id 取文件名（去 .md），转小写、非字母数字中文转连字符
+    const id = file.name
+      .replace(/\.md$/i, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60);
+    if (!id) {
+      showStatus("文件名无法生成合法 ID", false);
+      return;
+    }
+    await api("/api/posts", "POST", { id, content });
+    showStatus(`已上传「${file.name}」，正在编辑`);
+    openEditor(id);
+  } catch (err) {
+    showStatus(err.message || "上传失败", false);
+  }
+});
 
 $("btn-push").addEventListener("click", async () => {
   const btn = $("btn-push");
