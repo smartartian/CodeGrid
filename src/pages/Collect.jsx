@@ -1,3 +1,5 @@
+import EmptyState from "../components/EmptyState.jsx";
+
 export default function Collect() {
   return (
     <div className="article-page">
@@ -6,7 +8,7 @@ export default function Collect() {
         <h1 className="section-head-title">收录</h1>
       </div>
 
-      {/* 内容暂空，待补充 */}
+      <EmptyState message="待补充" />
     </div>
   );
 }

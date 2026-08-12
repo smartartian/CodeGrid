@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { articles } from "../data.js";
 import ArticleCard from "../components/ArticleCard.jsx";
+import EmptyState from "../components/EmptyState.jsx";
 import Reveal from "../components/Reveal.jsx";
 import TimelineCanvas from "../components/TimelineCanvas.jsx";
 
@@ -51,7 +52,9 @@ export default function Articles() {
         </div>
       </div>
 
-      {view === "list" ? (
+      {sorted.length === 0 ? (
+        <EmptyState message="暂无文章，敬请期待" />
+      ) : view === "list" ? (
         <>
           <p style={{ fontSize: "0.9rem", color: "var(--text-soft)", marginBottom: 16 }}>
             共 {sorted.length} 篇文章{totalPages > 1 ? `，第 ${current} / ${totalPages} 页` : ""}

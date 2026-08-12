@@ -1345,6 +1345,85 @@ button {
   }
 }
 
+/* ============ 待补充提示 ============ */
+.empty-tip {
+  padding: 24px 0 10px;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+/* ============ 空状态 ============ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 20px;
+  color: var(--text-muted);
+}
+
+.empty-state-text {
+  font-size: 0.92rem;
+}
+
+/* ============ 更新日志 ============ */
+.changelog-group {
+  margin-bottom: 26px;
+  padding-left: 18px;
+  border-left: 2px solid var(--wash-border);
+}
+
+.changelog-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.changelog-version {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.changelog-tag {
+  padding: 1px 10px;
+  font-size: 0.78rem;
+  color: #fff;
+  background: var(--navy);
+  border-radius: 3px;
+}
+
+.changelog-date {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.changelog-list {
+  position: relative;
+}
+
+.changelog-item {
+  position: relative;
+  padding: 5px 0 5px 18px;
+  font-size: 0.92rem;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.changelog-item::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 13px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--accent-red);
+}
+
 /* ============ 关联站点（关于页） ============ */
 .site-links {
   border-top: 1px solid var(--rule);
@@ -1386,22 +1465,11 @@ button {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 70px 20px 90px;
+  padding: 56px 20px 90px;
 }
 
-.notfound-code {
-  font-size: 6rem;
-  font-weight: 700;
-  color: var(--navy);
-  line-height: 1;
-  letter-spacing: 6px;
-}
-
-.notfound-line {
-  width: 56px;
-  height: 4px;
-  background: var(--accent-red);
-  margin: 22px 0 26px;
+.notfound-illustration {
+  margin-bottom: 18px;
 }
 
 .notfound-title {

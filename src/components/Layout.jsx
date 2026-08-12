@@ -151,6 +151,7 @@ export default function Layout({ children }) {
             <Link to="/">首页</Link>
             <Link to="/about">关于本站</Link>
             <a href={`mailto:${site.email}`}>联系我们</a>
+            <Link to="/changelog">更新日志</Link>
             <a href="/feed.xml" target="_blank" rel="noopener">RSS 订阅</a>
           </div>
           <div className="footer-meta">

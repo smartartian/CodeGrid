@@ -1,3 +1,5 @@
+import EmptyState from "../components/EmptyState.jsx";
+
 export default function About() {
   return (
     <div className="article-page">
@@ -6,7 +8,7 @@ export default function About() {
         <h1 className="section-head-title">关于本站</h1>
       </div>
 
-      {/* 正文内容暂空，待补充 */}
+      <EmptyState message="待补充" />
 
       {/* 关联站点 */}
       <div className="section-head" style={{ marginTop: 44 }}>

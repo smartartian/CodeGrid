@@ -9,6 +9,7 @@ const Articles = lazy(() => import("./pages/Articles.jsx"));
 const Category = lazy(() => import("./pages/Category.jsx"));
 const Search = lazy(() => import("./pages/Search.jsx"));
 const Collect = lazy(() => import("./pages/Collect.jsx"));
+const Changelog = lazy(() => import("./pages/Changelog.jsx"));
 const About = lazy(() => import("./pages/About.jsx"));
 const NotFound = lazy(() => import("./pages/NotFound.jsx"));
 
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/category/:name" element={<Category />} />
           <Route path="/search" element={<Search />} />
           <Route path="/collect" element={<Collect />} />
+          <Route path="/changelog" element={<Changelog />} />
           <Route path="/about" element={<About />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
