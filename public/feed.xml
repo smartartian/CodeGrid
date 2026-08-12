@@ -8,6 +8,15 @@
     <generator>mimocode-blog</generator>
     <atom:link href="https://blog.codegrid.cn/feed.xml" rel="self" type="application/rss+xml"/>
     <item>
+      <title>《是，首相》第一季 · 第一集《宏伟蓝图》</title>
+      <link>https://blog.codegrid.cn/article/1-宏伟蓝图</link>
+      <guid isPermaLink="false">https://blog.codegrid.cn/article/1-宏伟蓝图</guid>
+      <pubDate>Tue, 11 Aug 2026 16:00:00 GMT</pubDate>
+      <category>是，首相</category>
+      <description>《是，首相》第一季 · 第一集《宏伟蓝图》 主要人物 ： - 哈克 （吉姆·哈克）：首相（Jim Hacker, Prime Minister） - 汉弗莱 （汉弗莱·阿普尔比爵士）：内阁秘书（Sir Humphrey Appleby, Cabinet Secretary） - 伯纳德 （伯纳德·伍…</description>
+      <category>哈克</category>
+    </item>
+    <item>
       <title>React 状态管理方案演进：从 Redux 到原子化</title>
       <link>https://blog.codegrid.cn/article/react-state-management</link>
       <guid isPermaLink="false">https://blog.codegrid.cn/article/react-state-management</guid>
