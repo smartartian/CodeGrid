@@ -21,9 +21,16 @@ export function parsePost(raw, id) {
   if (!parsed) throw new Error(`文章 ${id} 缺少 frontmatter`);
 
   const { meta, body } = parsed;
+  const title = meta.title;
+  // 剥离正文首行的重复标题（与 frontmatter title 完全一致时），避免渲染出两个 h1
+  const strippedBody = body
+    .replace(/^\n+/, "")
+    .replace(new RegExp(`^#\\s*${escapeRegExp(title)}\\s*\\n+`), "")
+    .trim();
+
   return {
     id,
-    title: meta.title,
+    title,
     date: meta.date,
     category: meta.category,
     tags: (meta.tags || "")
@@ -31,6 +38,10 @@ export function parsePost(raw, id) {
       .map((t) => t.trim())
       .filter(Boolean),
     summary: meta.summary,
-    content: body.trim(),
+    content: strippedBody,
   };
+}
+
+function escapeRegExp(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
