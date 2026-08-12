@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { articles } from "../data.js";
 import ArticleCard from "../components/ArticleCard.jsx";
+import Reveal from "../components/Reveal.jsx";
 import TimelineCanvas from "../components/TimelineCanvas.jsx";
 
 const PER_PAGE = 5;
@@ -57,8 +58,10 @@ export default function Articles() {
           </p>
 
           <div className="article-list">
-            {list.map((a) => (
-              <ArticleCard key={a.id} article={a} />
+            {list.map((a, i) => (
+              <Reveal key={a.id} delay={i * 60}>
+                <ArticleCard article={a} />
+              </Reveal>
             ))}
           </div>
 

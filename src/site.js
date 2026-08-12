@@ -3,8 +3,7 @@ export const site = {
   name: "CodeGrid",
   enName: "CodeGrid 技术博客",
   slogan: "记录技术思考与工程实践",
-  email: "webmaster@codegrid.cn",
-  icp: "京ICP备2026000000号-1",
+  email: "smartartian@gmail.com",
   baseUrl: "https://blog.codegrid.cn",
   today: "2026年08月11日 星期二",
 };

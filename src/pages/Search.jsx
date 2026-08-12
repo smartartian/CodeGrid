@@ -1,5 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { articles, tags } from "../data.js";
+import Reveal from "../components/Reveal.jsx";
 
 export default function Search() {
   const [params] = useSearchParams();
@@ -49,18 +50,20 @@ export default function Search() {
         </div>
       ) : (
         <div className="article-list">
-          {results.map((a) => (
-            <article key={a.id} className="article-card">
-              <Link to={`/article/${a.id}`} className="article-card-title">
-                {a.title}
-              </Link>
-              <p className="article-card-summary">{a.summary}</p>
-              <div className="article-card-meta">
-                <span className="cat">{a.category}</span>
-                <span>{a.date}</span>
-                <span>{a.tags.join(" · ")}</span>
-              </div>
-            </article>
+          {results.map((a, i) => (
+            <Reveal key={a.id} delay={i * 60}>
+              <article className="article-card">
+                <Link to={`/article/${a.id}`} className="article-card-title">
+                  {a.title}
+                </Link>
+                <p className="article-card-summary">{a.summary}</p>
+                <div className="article-card-meta">
+                  <span className="cat">{a.category}</span>
+                  <span>{a.date}</span>
+                  <span>{a.tags.join(" · ")}</span>
+                </div>
+              </article>
+            </Reveal>
           ))}
         </div>
       )}

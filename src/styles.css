@@ -21,6 +21,112 @@
 
   --page-width: 1120px;
   --gutter: 24px;
+
+  /* 热力色阶（亮色） */
+  --heat-0: #ebedf0;
+  --heat-1: #c6d7ec;
+  --heat-2: #8fb4de;
+  --heat-3: #4f86c2;
+  --heat-4: #0d4a8a;
+
+  --input-bg: #ffffff;
+}
+
+/* 暗色模式：政务蓝深色方案 */
+html.dark {
+  --navy: #3d7ec9;
+  --navy-dark: #2a5a96;
+  --navy-light: #4d8fd6;
+  --link-blue: #6fa8e0;
+  --accent-red: #e0525c;
+  --paper: #161a22;
+  --wash: #1e2430;
+  --wash-border: #2c3444;
+  --text: #c9d2e0;
+  --text-soft: #9aa6ba;
+  --text-muted: #7a8699;
+  --rule: #2a3140;
+  --ink: #e4e9f2;
+
+  /* 热力色阶（暗色：弱化低等级，突出提交） */
+  --heat-0: #1e2430;
+  --heat-1: #25405f;
+  --heat-2: #2d5a8a;
+  --heat-3: #3d74b8;
+  --heat-4: #6fa8e0;
+
+  --input-bg: #1e2430;
+}
+
+html.dark body {
+  background: var(--paper);
+}
+
+/* 暗色下需要反向的实色块 */
+html.dark .brand-emblem {
+  background: #1e2430;
+}
+
+html.dark .prose pre {
+  background: #10141b;
+  border-color: #2c3444;
+}
+
+html.dark .timeline-canvas {
+  background: #10141b;
+}
+
+/* 暗色工具栏与链接对比度 */
+html.dark .topbar {
+  color: var(--text-soft);
+  border-bottom-color: var(--rule);
+}
+
+html.dark .topbar-date {
+  color: var(--text-soft);
+}
+
+html.dark .topbar-links a {
+  color: var(--text-soft);
+}
+
+html.dark .topbar-links a:hover {
+  color: var(--link-blue);
+}
+
+/* 暗色年份按钮与热力图卡片 */
+html.dark .heatmap-year-btn {
+  color: var(--text-soft);
+  background: var(--wash);
+  border-color: var(--wash-border);
+}
+
+html.dark .heatmap-year-btn:hover {
+  color: var(--link-blue);
+  border-color: var(--navy);
+}
+
+html.dark .heatmap-year-btn.active {
+  color: #fff;
+  background: var(--navy);
+  border-color: var(--navy);
+}
+
+html.dark .heatmap,
+html.dark .side-block,
+html.dark .timeline-section {
+  background: var(--wash);
+  border-color: var(--wash-border);
+}
+
+/* 暗色文章卡片 hover 与封面边框 */
+html.dark .article-card:hover {
+  background: var(--wash);
+  border-bottom-color: var(--navy);
+}
+
+html.dark .article-card-cover {
+  border-color: var(--wash-border);
 }
 
 * {
@@ -39,6 +145,17 @@ body {
   background: var(--paper);
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
+}
+
+/* 页脚固定视口底部：内容不足时仍贴底 */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-main {
+  flex: 1;
 }
 
 a {
@@ -84,12 +201,67 @@ button {
 
 .topbar-links {
   display: flex;
-  gap: 18px;
+  align-items: center;
+  gap: 16px;
 }
 
 .topbar-links a:hover {
   color: var(--link-blue);
   text-decoration: underline;
+}
+
+/* 主题切换按钮（暂隐藏，保留代码便于恢复） */
+.theme-toggle {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  color: var(--text-soft);
+  background: none;
+  border: 1px solid var(--wash-border);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--link-blue);
+  border-color: var(--navy);
+}
+
+/* 回到顶部按钮：页面右下角固定 */
+.back-to-top {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: var(--navy);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(13, 74, 138, 0.25);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+  z-index: 100;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.back-to-top:hover {
+  background: var(--navy-dark);
 }
 
 /* ============ 头部：深蓝横幅（现代） ============ */
@@ -152,15 +324,15 @@ button {
   font-size: 0.9rem;
   font-family: inherit;
   color: var(--text);
-  background: #fff;
-  border: 1px solid #fff;
+  background: var(--input-bg);
+  border: 1px solid var(--input-bg);
   border-right: none;
   border-radius: 4px 0 0 4px;
   outline: none;
 }
 
 .search-input:focus {
-  border-color: #fff;
+  border-color: var(--input-bg);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
 }
 
@@ -758,7 +930,45 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.heatmap-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 年份切换按钮 */
+.heatmap-years {
+  display: flex;
+  gap: 6px;
+}
+
+.heatmap-year-btn {
+  padding: 3px 12px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  color: var(--navy);
+  background: var(--paper);
+  border: 1px solid var(--wash-border);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.heatmap-year-btn:hover {
+  background: var(--wash);
+  border-color: var(--navy);
+}
+
+.heatmap-year-btn.active {
+  color: #fff;
+  background: var(--navy);
+  border-color: var(--navy);
+  font-weight: 600;
 }
 
 .heatmap-title {
@@ -780,21 +990,11 @@ button {
   overflow-x: auto;
 }
 
-.heatmap-months {
-  position: relative;
-  height: 16px;
-  margin-bottom: 4px;
-}
-
-.heatmap-months span {
-  position: absolute;
-  top: 0;
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
-.heatmap-scroll {
-  width: max-content;
+/* 热力图 SVG 自适应容器宽度，等比缩放填满 */
+.heatmap-svg {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 .heatmap-legend {
@@ -1142,5 +1342,138 @@ button {
 
   .topbar-links {
     display: none;
+  }
+}
+
+/* ============ 关联站点（关于页） ============ */
+.site-links {
+  border-top: 1px solid var(--rule);
+}
+
+.site-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 4px;
+  border-bottom: 1px solid var(--rule);
+  transition: background 0.15s ease;
+}
+
+.site-link:hover {
+  background: var(--wash);
+}
+
+.site-link-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--link-blue);
+}
+
+.site-link:hover .site-link-name {
+  color: var(--navy);
+}
+
+.site-link-url {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ============ 404 页面 ============ */
+.notfound {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 70px 20px 90px;
+}
+
+.notfound-code {
+  font-size: 6rem;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1;
+  letter-spacing: 6px;
+}
+
+.notfound-line {
+  width: 56px;
+  height: 4px;
+  background: var(--accent-red);
+  margin: 22px 0 26px;
+}
+
+.notfound-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.notfound-desc {
+  font-size: 0.95rem;
+  color: var(--text-soft);
+  margin-bottom: 30px;
+}
+
+.notfound-btn {
+  display: inline-block;
+  padding: 10px 34px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--navy);
+  border: 1px solid var(--navy);
+  border-radius: 3px;
+  transition: background 0.15s ease;
+}
+
+.notfound-btn:hover {
+  background: var(--navy-dark);
+}
+
+/* ============ 动画（政务风克制风格） ============ */
+
+/* 页面入场：路由切换时主内容淡入上移 */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: page-enter 0.4s ease-out both;
+}
+
+/* 滚动显现：进入视口时淡入上移（Reveal 组件） */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.45s ease-out,
+    transform 0.45s ease-out;
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 用户偏好减少动效时关闭动画 */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .page-enter {
+    animation: none;
   }
 }

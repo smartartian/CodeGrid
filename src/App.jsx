@@ -10,6 +10,7 @@ const Category = lazy(() => import("./pages/Category.jsx"));
 const Search = lazy(() => import("./pages/Search.jsx"));
 const Collect = lazy(() => import("./pages/Collect.jsx"));
 const About = lazy(() => import("./pages/About.jsx"));
+const NotFound = lazy(() => import("./pages/NotFound.jsx"));
 
 export default function App() {
   return (
@@ -23,7 +24,7 @@ export default function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/collect" element={<Collect />} />
           <Route path="/about" element={<About />} />
-          <Route path="*" element={<Home />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </Layout>

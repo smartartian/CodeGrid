@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { articles } from "../data.js";
 import GitHubHeatmap from "../components/GitHubHeatmap.jsx";
 import ArticleCard from "../components/ArticleCard.jsx";
+import Reveal from "../components/Reveal.jsx";
 
 function SectionTitle({ text }) {
   return (
@@ -18,20 +19,28 @@ export default function Home() {
   return (
     <div>
       {/* GitHub 提交热力图 */}
-      <GitHubHeatmap />
+      <Reveal>
+        <GitHubHeatmap />
+      </Reveal>
 
       {/* 最近文章 */}
-      <SectionTitle text="最近文章" />
+      <Reveal delay={80}>
+        <SectionTitle text="最近文章" />
+      </Reveal>
       <div className="article-list">
-        {latest.map((a) => (
-          <ArticleCard key={a.id} article={a} />
+        {latest.map((a, i) => (
+          <Reveal key={a.id} delay={120 + i * 60}>
+            <ArticleCard article={a} />
+          </Reveal>
         ))}
       </div>
-      <div className="more-bar">
-        <Link to="/articles" className="more-link">
-          更多文章 »
-        </Link>
-      </div>
+      <Reveal delay={600}>
+        <div className="more-bar">
+          <Link to="/articles" className="more-link">
+            更多文章 »
+          </Link>
+        </div>
+      </Reveal>
     </div>
   );
 }
