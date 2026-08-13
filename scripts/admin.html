@@ -104,18 +104,61 @@
   .status.ok { display: block; background: #eef7ee; border: 1px solid #bfe3bf; color: #2d6a2d; }
   .status.err { display: block; background: #fdf0f0; border: 1px solid #e8b4b8; color: #a01822; }
   .empty { color: var(--muted); font-size: 0.9rem; padding: 20px 0; text-align: center; }
-  .push-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .push-bar input { flex: 1; min-width: 220px; }
+  .push-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  .push-field label { font-size: 0.82rem; color: var(--muted); }
+  .push-field input {
+    width: 100%; padding: 9px 13px; font-size: 0.9rem; font-family: inherit;
+    border: 1px solid var(--border); border-radius: 3px; outline: none;
+    box-sizing: border-box;
+  }
+  .push-field input:focus { border-color: var(--navy); box-shadow: 0 0 0 2px rgba(13, 74, 138, 0.08); }
+  .push-actions { display: flex; align-items: center; gap: 14px; }
   .push-hint { font-size: 0.8rem; color: var(--muted); margin-top: 8px; }
-  .admin-tabs { display: flex; gap: 0; margin-bottom: 18px; border-bottom: 2px solid var(--navy); }
+  .admin-tabs { display: flex; align-items: stretch; gap: 4px; margin-bottom: 18px; background: #fff; border-bottom: 1px solid var(--border); }
   .admin-tab {
-    padding: 9px 22px; font-size: 0.92rem; font-family: inherit; cursor: pointer;
-    color: var(--soft); background: none; border: none; border-bottom: 3px solid transparent;
-    margin-bottom: -2px; transition: all 0.15s ease;
+    position: relative;
+    display: flex; align-items: center;
+    padding: 0 22px; height: 46px;
+    font-size: 0.98rem; font-family: inherit; cursor: pointer;
+    color: var(--text); background: none; border: none;
+    transition: color 0.15s ease;
   }
   .admin-tab:hover { color: var(--navy); }
-  .admin-tab.active { color: var(--navy); font-weight: 700; border-bottom-color: var(--accent-red); }
+  .admin-tab.active { color: var(--navy); font-weight: 700; }
+  .admin-tab.active::after {
+    content: ""; position: absolute;
+    left: 16px; right: 16px; bottom: -1px; height: 3px;
+    background: var(--red);
+  }
   .hidden { display: none; }
+  .pager { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 14px; }
+  .pager-info { font-size: 0.82rem; color: var(--muted); }
+  .change-monitor { margin-top: 12px; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+  .change-monitor-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; background: var(--wash); font-size: 0.82rem; color: var(--soft);
+  }
+  .change-badge {
+    padding: 1px 9px; font-size: 0.75rem; font-weight: 600;
+    background: var(--navy); color: #fff; border-radius: 10px;
+  }
+  .change-monitor-head .btn { margin-left: auto; }
+  .change-list { max-height: 200px; overflow: auto; font-size: 0.8rem; }
+  .change-list .change-empty { padding: 12px; color: var(--muted); }
+  .change-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 12px; border-top: 1px solid var(--border);
+    font-family: Consolas, "SF Mono", monospace;
+  }
+  .change-status {
+    flex-shrink: 0; width: 18px; text-align: center; font-weight: 700;
+  }
+  .change-status.M { color: #c77700; }
+  .change-status.A { color: #2d8a4e; }
+  .change-status.D { color: var(--red); }
+  .change-status.R { color: #6a5acd; }
+  .change-status.?? { color: #2d8a4e; }
+  .change-file { color: var(--text); word-break: break-all; }
 
   /* 编辑器分屏 */
   .editor-wrap { display: flex; gap: 14px; align-items: stretch; }
@@ -182,7 +225,7 @@
     <div class="topbar-right">
       <span id="save-state" class="save-state" style="font-size:0.82rem;"></span>
       <a class="btn" href="http://localhost:5173/" target="_blank">开发预览 ↗</a>
-      <a class="btn" href="http://localhost:4173/" target="_blank">生产预览 ↗</a>
+      <a class="btn" href="https://blog.codegrid.cn/" target="_blank">生产预览 ↗</a>
     </div>
   </div>
 
@@ -215,6 +258,11 @@
         <tbody id="post-tbody"></tbody>
       </table>
       <div id="list-empty" class="empty hidden">暂无文章</div>
+      <div class="pager hidden" id="list-pager">
+        <button class="btn small" id="pager-prev">上一页</button>
+        <span class="pager-info" id="pager-info"></span>
+        <button class="btn small" id="pager-next">下一页</button>
+      </div>
     </div>
 
     <!-- 新建文章 -->
@@ -316,8 +364,11 @@
       <!-- 同步提交当前文章 -->
       <div class="card">
         <h2>同步提交当前文章</h2>
-        <div class="push-bar">
-          <input id="push-msg-posts" placeholder="提交说明（默认：docs: 更新文章）" />
+        <div class="push-field">
+          <label for="push-msg-posts">提交说明</label>
+          <input id="push-msg-posts" placeholder="docs: 更新文章" />
+        </div>
+        <div class="push-actions">
           <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--soft); white-space:nowrap;">
             <input type="checkbox" id="push-build-posts" checked style="width:auto;" /> 推送前先构建
           </label>
@@ -331,8 +382,11 @@
       <!-- 同步更新程序修改 -->
       <div class="card">
         <h2>同步更新程序修改</h2>
-        <div class="push-bar">
-          <input id="push-msg-all" placeholder="提交说明（默认：chore: 更新程序）" />
+        <div class="push-field">
+          <label for="push-msg-all">提交说明</label>
+          <input id="push-msg-all" placeholder="chore: 更新程序" />
+        </div>
+        <div class="push-actions">
           <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--soft); white-space:nowrap;">
             <input type="checkbox" id="push-build-all" checked style="width:auto;" /> 推送前先构建
           </label>
@@ -341,6 +395,16 @@
         <p class="push-hint">
           git add -A 提交全部改动（含 src 代码、样式、配置等），适用于博客程序/功能更新。
         </p>
+        <div class="change-monitor">
+          <div class="change-monitor-head">
+            <span>变更文件监测</span>
+            <span class="change-badge" id="change-badge">0 个文件</span>
+            <button class="btn small" id="btn-refresh-changes">刷新</button>
+          </div>
+          <div class="change-list" id="change-list">
+            <p class="change-empty">工作区干净，无改动</p>
+          </div>
+        </div>
         <pre id="git-output" style="margin-top:10px; padding:10px; background:var(--wash); border:1px solid var(--wash-border); border-radius:3px; font-size:0.78rem; max-height:180px; overflow:auto; white-space:pre-wrap; display:none;"></pre>
       </div>
     </div>
@@ -351,6 +415,8 @@ const $ = (id) => document.getElementById(id);
 let allPosts = [];
 let currentId = null;
 let dirty = false;
+const PAGE_SIZE = 10;
+let listPage = 1;
 
 function showStatus(msg, ok = true) {
   const el = $("status");
@@ -488,11 +554,23 @@ function renderList(filter = "") {
   const tbody = $("post-tbody");
   tbody.innerHTML = "";
   const kw = filter.trim().toLowerCase();
-  const list = allPosts
+  const filtered = allPosts
     .filter((p) => !kw || (p.title + p.category + p.tags + p.id).toLowerCase().includes(kw))
     .sort((a, b) => (a.date < b.date ? 1 : -1));
-  $("list-empty").classList.toggle("hidden", list.length > 0);
-  for (const p of list) {
+  $("list-empty").classList.toggle("hidden", filtered.length > 0);
+
+  // 分页
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  listPage = Math.min(listPage, totalPages);
+  const start = (listPage - 1) * PAGE_SIZE;
+  const pageItems = filtered.slice(start, start + PAGE_SIZE);
+  const pager = $("list-pager");
+  pager.classList.toggle("hidden", filtered.length <= PAGE_SIZE);
+  $("pager-info").textContent = `第 ${listPage} / ${totalPages} 页 · 共 ${filtered.length} 篇`;
+  $("pager-prev").disabled = listPage <= 1;
+  $("pager-next").disabled = listPage >= totalPages;
+
+  for (const p of pageItems) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td><a href="javascript:void(0)" data-id="${p.id}" class="open-edit">${p.title}</a>
@@ -501,7 +579,7 @@ function renderList(filter = "") {
       <td>${p.date}</td>
       <td class="actions">
         <button class="btn small open-edit" data-id="${p.id}">编辑</button>
-        <a class="btn small" href="http://localhost:4173/article/${p.id}" target="_blank">预览</a>
+        <a class="btn small" href="https://blog.codegrid.cn/#/article/${p.id}" target="_blank">预览</a>
         <button class="btn small danger del-post" data-id="${p.id}">删除</button>
       </td>`;
     tbody.appendChild(tr);
@@ -518,6 +596,13 @@ async function loadPosts() {
   }
 }
 
+$("pager-prev").addEventListener("click", () => {
+  if (listPage > 1) { listPage--; renderList($("search-input").value); }
+});
+$("pager-next").addEventListener("click", () => {
+  listPage++; renderList($("search-input").value);
+});
+
 async function openEditor(id) {
   try {
     const res = await fetch(`/api/posts/${encodeURIComponent(id)}`);
@@ -529,7 +614,7 @@ async function openEditor(id) {
     $("edit-title").textContent = id;
     currentId = id;
     $("edit-content").value = content;
-    $("btn-view-site").href = `http://localhost:4173/article/${id}`;
+    $("btn-view-site").href = `https://blog.codegrid.cn/#/article/${id}`;
     updatePreview();
     setDirty(false);
     window.scrollTo(0, 0);
@@ -644,7 +729,7 @@ $("edit-content").addEventListener("input", () => {
 $("btn-save").addEventListener("click", () => savePost(false));
 $("btn-save-continue").addEventListener("click", () => savePost(false));
 
-$("search-input").addEventListener("input", (e) => renderList(e.target.value));
+$("search-input").addEventListener("input", (e) => { listPage = 1; renderList(e.target.value); });
 
 /* ---------- 上传 MD 文件 ---------- */
 $("btn-upload").addEventListener("click", () => $("file-input").click());
@@ -755,6 +840,46 @@ $("btn-push-posts").addEventListener("click", (e) =>
 $("btn-push-all").addEventListener("click", (e) =>
   doPush("all", e.currentTarget, "push-msg-all", "push-build-all", "chore: 更新程序"));
 
+/* ---------- 变更文件监测 ---------- */
+function parseChanges(text) {
+  const rows = [];
+  for (const line of text.split("\n")) {
+    const m = line.match(/^(..)\s+(.+)$/);
+    if (!m) continue;
+    const status = m[1].trim() || "M";
+    rows.push({ status, file: m[2].trim() });
+  }
+  return rows;
+}
+
+function renderChanges(rows) {
+  const list = $("change-list");
+  $("change-badge").textContent = `${rows.length} 个文件`;
+  if (rows.length === 0) {
+    list.innerHTML = '<p class="change-empty">工作区干净，无改动</p>';
+    return;
+  }
+  list.innerHTML = "";
+  for (const r of rows) {
+    const div = document.createElement("div");
+    div.className = "change-row";
+    div.innerHTML = `<span class="change-status ${r.status}">${r.status}</span><span class="change-file">${r.file}</span>`;
+    list.appendChild(div);
+  }
+}
+
+async function refreshChanges() {
+  try {
+    const r = await api("/api/git/status", "GET");
+    renderChanges(parseChanges(r.changes || ""));
+  } catch (e) {
+    // 静默失败，避免干扰
+  }
+}
+
+$("btn-refresh-changes").addEventListener("click", refreshChanges);
+setInterval(refreshChanges, 10000); // 每 10 秒自动监测
+
 document.addEventListener("keydown", (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === "s") {
     e.preventDefault();
@@ -770,6 +895,7 @@ window.addEventListener("beforeunload", (e) => {
 });
 
 loadPosts();
+refreshChanges();
 </script>
 </body>
 </html>

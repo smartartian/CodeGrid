@@ -1449,6 +1449,27 @@ button {
   border: 2px solid var(--accent-red);
 }
 
+/* ============ 关于页语录 ============ */
+.about-quote {
+  margin: 26px 0 8px;
+  padding: 22px 26px;
+  background: var(--wash);
+  border-radius: 3px;
+  font-size: 1rem;
+  line-height: 2;
+  color: var(--text);
+}
+
+.about-quote p {
+  margin-bottom: 14px;
+}
+
+.about-quote-author {
+  text-align: right;
+  font-size: 0.92rem;
+  color: var(--text-soft);
+}
+
 /* ============ 关联站点（关于页） ============ */
 .site-links {
   border-top: 1px solid var(--rule);

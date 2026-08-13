@@ -1,5 +1,3 @@
-import EmptyState from "../components/EmptyState.jsx";
-
 export default function About() {
   return (
     <div className="article-page">
@@ -8,7 +6,12 @@ export default function About() {
         <h1 className="section-head-title">关于本站</h1>
       </div>
 
-      <EmptyState message="待补充" />
+      <blockquote className="about-quote">
+        <p>
+          如果我们选择了最能为人类福利而劳动的职业，那么，重担就不能把我们压倒，因为这是为大家而献身；那时我们所感到的就不是可怜的、有限的、自私的乐趣，我们的幸福将属于千百万人，我们的事业将默默地、但是永恒发挥作用地存在下去，面对我们的骨灰，高尚的人们将洒下热泪。
+        </p>
+        <footer className="about-quote-author">—— 卡尔·马克思</footer>
+      </blockquote>
 
       {/* 关联站点 */}
       <div className="section-head" style={{ marginTop: 44 }}>

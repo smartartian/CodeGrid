@@ -102,7 +102,7 @@ export default function Layout({ children }) {
       <header className="header">
         <div className="container header-inner">
           <Link to="/" className="brand">
-            <Emblem />
+            {/* 徽标临时隐藏查看效果 */}
             <div>
               <div className="brand-title">{site.name}</div>
               <div className="brand-subtitle">{site.enName}</div>
