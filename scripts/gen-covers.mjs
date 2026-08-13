@@ -46,6 +46,8 @@ function coverSvg(cat) {
 }
 
 await mkdir(COVERS_DIR, { recursive: true });
+// 确保文章目录存在（空仓库下可能缺失）
+await mkdir(POSTS_DIR, { recursive: true });
 
 const files = (await readdir(POSTS_DIR)).filter((f) => f.endsWith(".md"));
 const generated = new Set();

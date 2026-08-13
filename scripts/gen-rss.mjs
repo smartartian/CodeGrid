@@ -1,6 +1,6 @@
 // 从 content/posts/ 的 .md 文章生成 RSS 2.0 feed（public/feed.xml）
 // 用法：node scripts/gen-rss.mjs
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { parsePost } from "../src/lib/parse-post.js";
 import { site } from "../src/site.js";
 
@@ -26,6 +26,8 @@ function excerpt(md) {
   return text.length > 150 ? text.slice(0, 150) + "…" : text;
 }
 
+// 确保目录存在（空仓库下 content/posts 不被 git 跟踪，可能缺失）
+await mkdir(postsDir, { recursive: true });
 const files = (await readdir(postsDir)).filter((f) => f.endsWith(".md"));
 const articles = [];
 for (const f of files) {
