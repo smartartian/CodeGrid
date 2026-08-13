@@ -107,6 +107,14 @@
   .push-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .push-bar input { flex: 1; min-width: 220px; }
   .push-hint { font-size: 0.8rem; color: var(--muted); margin-top: 8px; }
+  .admin-tabs { display: flex; gap: 0; margin-bottom: 18px; border-bottom: 2px solid var(--navy); }
+  .admin-tab {
+    padding: 9px 22px; font-size: 0.92rem; font-family: inherit; cursor: pointer;
+    color: var(--soft); background: none; border: none; border-bottom: 3px solid transparent;
+    margin-bottom: -2px; transition: all 0.15s ease;
+  }
+  .admin-tab:hover { color: var(--navy); }
+  .admin-tab.active { color: var(--navy); font-weight: 700; border-bottom-color: var(--accent-red); }
   .hidden { display: none; }
 
   /* 编辑器分屏 */
@@ -181,6 +189,14 @@
   <div class="container">
     <div id="status" class="status"></div>
 
+    <!-- 菜单栏：文章列表 / 更新博客 -->
+    <nav class="admin-tabs" role="tablist">
+      <button class="admin-tab active" id="tab-posts" role="tab" aria-selected="true">文章列表</button>
+      <button class="admin-tab" id="tab-update" role="tab" aria-selected="false">更新博客</button>
+    </nav>
+
+    <!-- ============ 视图一：文章列表 ============ -->
+    <div id="view-posts">
     <!-- 文章列表 -->
     <div class="card" id="list-card">
       <h2>文章列表</h2>
@@ -294,19 +310,39 @@
       </div>
     </div>
 
-    <!-- 一键推送 -->
-    <div class="card" id="push-card">
-      <h2>一键构建并推送</h2>
-      <div class="push-bar">
-        <input id="push-msg" placeholder="提交说明（默认：docs: 更新文章）" />
-        <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--soft); white-space:nowrap;">
-          <input type="checkbox" id="push-build" checked style="width:auto;" /> 推送前先构建
-        </label>
-        <button class="btn primary" id="btn-push">构建并推送到 GitHub</button>
+    </div>
+    <!-- ============ 视图二：更新博客 ============ -->
+    <div id="view-update" class="hidden">
+      <!-- 同步提交当前文章 -->
+      <div class="card">
+        <h2>同步提交当前文章</h2>
+        <div class="push-bar">
+          <input id="push-msg-posts" placeholder="提交说明（默认：docs: 更新文章）" />
+          <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--soft); white-space:nowrap;">
+            <input type="checkbox" id="push-build-posts" checked style="width:auto;" /> 推送前先构建
+          </label>
+          <button class="btn primary" id="btn-push-posts">同步文章并推送</button>
+        </div>
+        <p class="push-hint">
+          仅提交文章相关文件（content/posts、public/covers、public/feed.xml），适用于日常发文更新。
+        </p>
       </div>
-      <p class="push-hint">
-        构建会重新生成封面图与 RSS feed；然后 git add（content/posts、public/covers、public/feed.xml）+ commit + push。
-      </p>
+
+      <!-- 同步更新程序修改 -->
+      <div class="card">
+        <h2>同步更新程序修改</h2>
+        <div class="push-bar">
+          <input id="push-msg-all" placeholder="提交说明（默认：chore: 更新程序）" />
+          <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--soft); white-space:nowrap;">
+            <input type="checkbox" id="push-build-all" checked style="width:auto;" /> 推送前先构建
+          </label>
+          <button class="btn primary" id="btn-push-all">同步全部改动并推送</button>
+        </div>
+        <p class="push-hint">
+          git add -A 提交全部改动（含 src 代码、样式、配置等），适用于博客程序/功能更新。
+        </p>
+        <pre id="git-output" style="margin-top:10px; padding:10px; background:var(--wash); border:1px solid var(--wash-border); border-radius:3px; font-size:0.78rem; max-height:180px; overflow:auto; white-space:pre-wrap; display:none;"></pre>
+      </div>
     </div>
   </div>
 
@@ -413,19 +449,28 @@ function renderMarkdown(md) {
 }
 
 /* ---------- 视图切换 ---------- */
+function switchTab(tab) {
+  const isPosts = tab === "posts";
+  $("tab-posts").classList.toggle("active", isPosts);
+  $("tab-update").classList.toggle("active", !isPosts);
+  $("tab-posts").setAttribute("aria-selected", isPosts);
+  $("tab-update").setAttribute("aria-selected", !isPosts);
+  $("view-posts").classList.toggle("hidden", !isPosts);
+  $("view-update").classList.toggle("hidden", isPosts);
+  if (isPosts) showList();
+}
+
 function showList() {
   $("new-card").classList.add("hidden");
   $("meta-card").classList.add("hidden");
   $("edit-card").classList.add("hidden");
   $("list-card").classList.remove("hidden");
-  $("push-card").classList.remove("hidden");
   renderList();
 }
 
 function showMetaCard(meta) {
   // meta: { id, title, category, date, tags, summary, body }
   $("list-card").classList.add("hidden");
-  $("push-card").classList.add("hidden");
   $("new-card").classList.add("hidden");
   $("edit-card").classList.add("hidden");
   $("meta-card").classList.remove("hidden");
@@ -478,7 +523,6 @@ async function openEditor(id) {
     const res = await fetch(`/api/posts/${encodeURIComponent(id)}`);
     const content = await res.text();
     $("list-card").classList.add("hidden");
-    $("push-card").classList.add("hidden");
     $("new-card").classList.add("hidden");
     $("meta-card").classList.add("hidden");
     $("edit-card").classList.remove("hidden");
@@ -524,6 +568,9 @@ async function savePost(goBack = false) {
 
 /* ---------- 事件 ---------- */
 document.addEventListener("click", async (e) => {
+  if (e.target.id === "tab-posts") return switchTab("posts");
+  if (e.target.id === "tab-update") return switchTab("update");
+
   const openBtn = e.target.closest(".open-edit");
   if (openBtn) {
     if (dirty && !confirm("当前有未保存的修改，确定放弃并离开？")) return;
@@ -542,7 +589,6 @@ document.addEventListener("click", async (e) => {
   }
   if (e.target.id === "btn-new") {
     $("list-card").classList.add("hidden");
-    $("push-card").classList.add("hidden");
     $("new-card").classList.remove("hidden");
     $("new-id").value = "";
     $("new-id").focus();
@@ -679,23 +725,35 @@ ${$("meta-body").value.trim()}
 
 $("meta-cancel").addEventListener("click", () => showList());
 
-$("btn-push").addEventListener("click", async () => {
-  const btn = $("btn-push");
+/* ---------- 更新博客：同步文章 / 同步程序 / 暂存 ---------- */
+function showGit(text) {
+  const el = $("git-output");
+  el.style.display = "block";
+  el.textContent = text;
+}
+
+async function doPush(scope, btn, msgInput, buildInput, defaultMsg) {
   btn.disabled = true;
   btn.textContent = "构建推送中...";
   try {
-    const msg = $("push-msg").value.trim() || "docs: 更新文章";
-    const doBuild = $("push-build").checked;
-    const r = await api("/api/push", "POST", { message: msg, build: doBuild });
+    const msg = $(msgInput).value.trim() || defaultMsg;
+    const doBuild = $(buildInput).checked;
+    const r = await api("/api/push", "POST", { message: msg, build: doBuild, scope });
     showStatus(r.message, r.ok);
+    showGit(r.message);
     loadPosts();
   } catch (err) {
     showStatus(err.message, false);
   } finally {
     btn.disabled = false;
-    btn.textContent = "构建并推送到 GitHub";
+    btn.textContent = btn.id === "btn-push-posts" ? "同步文章并推送" : "同步全部改动并推送";
   }
-});
+}
+
+$("btn-push-posts").addEventListener("click", (e) =>
+  doPush("posts", e.currentTarget, "push-msg-posts", "push-build-posts", "docs: 更新文章"));
+$("btn-push-all").addEventListener("click", (e) =>
+  doPush("all", e.currentTarget, "push-msg-all", "push-build-all", "chore: 更新程序"));
 
 document.addEventListener("keydown", (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === "s") {

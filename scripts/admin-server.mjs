@@ -2,7 +2,7 @@
 // 零依赖（Node 内置 http），仅绑定 127.0.0.1，安全只限本机
 // 用法：npm run admin   → 打开 http://localhost:4000
 import { createServer } from "node:http";
-import { readFile, readdir, writeFile, rm } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -41,18 +41,48 @@ async function runBuild() {
   }
 }
 
-async function gitPush(commitMsg) {
+// scope: "posts" = 仅文章相关文件；"all" = 全部改动（含程序代码）
+async function gitPush(commitMsg, scope = "posts") {
   try {
-    // 后台只管理文章相关文件，避免误提交其他改动
-    await exec("git", ["add", "content/posts", "public/covers", "public/feed.xml"]);
+    const paths = scope === "all" ? ["-A"] : ["content/posts", "public/covers", "public/feed.xml"];
+    await exec("git", ["add", ...paths]);
     await exec("git", ["commit", "-m", commitMsg]);
     await exec("git", ["push"]);
     return { ok: true, message: "已提交并推送到远程仓库" };
   } catch (err) {
-    // 无改动时 commit 会失败，这是正常情况
     if (String(err.stderr || err.message).includes("nothing to commit")) {
       return { ok: true, message: "没有需要推送的改动" };
     }
+    return { ok: false, message: String(err.stderr || err.message).slice(0, 500) };
+  }
+}
+
+async function gitStatus() {
+  try {
+    const { stdout } = await exec("git", ["status", "--short"]);
+    return { ok: true, changes: stdout.trim() };
+  } catch (err) {
+    return { ok: false, message: String(err.stderr || err.message).slice(0, 300) };
+  }
+}
+
+async function gitStash(save = true) {
+  try {
+    if (save) {
+      const { stdout, stderr } = await exec("git", ["stash", "push", "-u", "-m", "后台暂存"]);
+      const out = (stdout + stderr).trim();
+      if (!out.includes("Saved working directory")) {
+        return { ok: true, message: "没有可暂存的改动" };
+      }
+      return { ok: true, message: out };
+    }
+    const { stdout, stderr } = await exec("git", ["stash", "pop"]);
+    const out = (stdout + stderr).trim();
+    if (out.includes("No stash entries")) {
+      return { ok: false, message: "没有暂存的改动可恢复" };
+    }
+    return { ok: true, message: out };
+  } catch (err) {
     return { ok: false, message: String(err.stderr || err.message).slice(0, 500) };
   }
 }
@@ -124,7 +154,7 @@ const server = createServer(async (req, res) => {
     }
 
     if (pathname === "/api/push" && req.method === "POST") {
-      const { message, build } = JSON.parse(await readBody(req));
+      const { message, build, scope } = JSON.parse(await readBody(req));
       if (build) {
         const result = await runBuild();
         if (!result.ok) {
@@ -132,12 +162,23 @@ const server = createServer(async (req, res) => {
           return;
         }
       }
-      sendJson(res, 200, await gitPush(message || "docs: 更新文章"));
+      sendJson(res, 200, await gitPush(message || "docs: 更新文章", scope || "posts"));
       return;
     }
 
     if (pathname === "/api/build" && req.method === "POST") {
       sendJson(res, 200, await runBuild());
+      return;
+    }
+
+    if (pathname === "/api/git/status" && req.method === "GET") {
+      sendJson(res, 200, await gitStatus());
+      return;
+    }
+
+    if (pathname === "/api/git/stash" && req.method === "POST") {
+      const { action } = JSON.parse(await readBody(req));
+      sendJson(res, 200, await gitStash(action !== "pop"));
       return;
     }
 
@@ -147,7 +188,9 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, HOST, () => {
+server.listen(PORT, HOST, async () => {
+  // 确保文章目录存在（被误删时自动重建）
+  await mkdir(POSTS_DIR, { recursive: true });
   console.log(`CodeGrid 管理后台已启动：http://localhost:${PORT}`);
   console.log(`文章目录：${POSTS_DIR}`);
 });
